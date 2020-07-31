@@ -30,22 +30,36 @@ function NanoMachineImport_QS_Bruker
     % This calculates the number of samples the user has chosen based on
     % the number of files chosen.
     NumberOfIndents = length(file);
-   
-
+    
+    MaxIndentDepth = nan;
+    
+    MasterTable = cell(NumberOfIndents,1);
+    
     % This fills in fileNameList
-    for i =1:NumberOfSamples
-        HeadingName = sprintf('Enter name for nanoindentation data titled "%s":',file{i});
-        CurrName = inputdlg({HeadingName},'Type sample name here:',[1,100]);
-        if ~isempty(CurrName)
-            filename = fullfile(path,file{i});
-            opts = detectImportOptions(filename,'VariableNamesLine',6,'Encoding','windows-1252','ExpectedNumVariables',5,'PreserveVariableNames',true);
-            T = readtable(filename,opts);
-        else
-            errordlg('No name entered! Code will terminate!')
-            return
-        end
+    for i =1:NumberOfIndents
+        fprintf('Current file loaded = %s\n',file{i});
+        filename = fullfile(path,file{i});
+        opts = detectImportOptions(filename,'VariableNamesLine',6,'Encoding','windows-1252','ExpectedNumVariables',5,'PreserveVariableNames',true);
+%         currTable = readtable(filename,opts);
+        currMatrix = readmatrix(filename,opts);
+        NumOfRows = size(currMatrix,1);
+        Depth = currMatrix(:,1); % Depth in nm which is good.
+        Load = currMatrix(:,2)*1000; % Load is converted from uN to mN!
+        Time = currMatrix(:,3); % Time in s which is good.
+        HCS = nan(NumOfRows,1); % Fake HCS column.
+        H = nan(NumOfRows,1); % Fake hardness column.
+        E = nan(NumOfRows,1); % Fake Youngs modulus column.
+        currMaxIndentDepth = max(Depth);
+        fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
+        MaxIndentDepth = max([currMaxIndentDepth,MaxIndentDepth]);
     end
     
     cd(LOC_init)
     fprintf('NanoMachineImport_QS_Bruker: Complete!\n');
+end
+
+%% Functions
+
+function OutputTable = MakeTableForIndent(NumOfRows,Depth,Load,Time,HCS,E)
+    OutputTable = table(Depth,,Load,Time,HCS,E);
 end
