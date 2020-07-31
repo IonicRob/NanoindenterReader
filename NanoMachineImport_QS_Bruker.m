@@ -5,20 +5,18 @@
 % the loading up path, and not the unloading stage; as this give me a
 % headache trying to sort it out for both directions).
 
-function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,debugON)
+function OutPut = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON)
 %% Testing Initialisation
 
 testON = false;
 
 if testON == true
     bins = 100;
-    IDName = 'Test';
     debugON = true;
     StdDevWeightingMode = 'N-1';
 end
 %% Setup
     title = 'NanoMachineImport_QS_Bruker';
-    [w,ProgressBar,waitTime] = NanoMachineImport_first_stage(title,StdDevWeightingMode,IDName);
     
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
@@ -31,6 +29,8 @@ end
         errordlg('No files selected! Code will terminate!')
         return
     end
+    
+    [w,ProgressBar,waitTime,IDName] = NanoMachineImport_first_stage(title,StdDevWeightingMode,file);
     
     LOC_load = path;
     

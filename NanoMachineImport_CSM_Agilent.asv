@@ -10,7 +10,7 @@
 % each of these bin ranges and find the mean average value. It will then
 % find the average bin value for of all of the indents for each bin.
 
-function OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON)
+function OutPut = NanoMachineImport_CSM_Agilent(filename,IDName,bins,StdDevWeightingMode,debugON)
     %% Testing Section
     % Set 'testON' to true to allow for testing of this code itself.
     
@@ -18,29 +18,27 @@ function OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON
     
     if testON == true
         clear
+        IDName = 'Test Code';
         bins = 100;
         debugON = true;
         StdDevWeightingMode = 'N-1';
+        [file,path] = uigetfile('*.xlsx','Select nanoindentation Excel file to import:');
+        filename = fullfile(path,file);
+        fprintf("Loading from '%s'\n",path);
     end
     
 %% Setup
     
     title = 'NanoMachineImport_CSM_Agilent';
+    [w,ProgressBar,waitTime] = NanoMachineImport_first_stage(title,StdDevWeightingMode,IDName);
     
     % This gets the file data for the sample.
     [file,path] = uigetfile({'*.xlsx;*.xls'},'Select nanoindentation Excel file to import:','MultiSelect','off');
     filename = fullfile(path,file);
-    
     if isa(file,'double') == true
-        errordlg('No file selected! Code terminated!')
+        errordlg('No files selected! Code terminated!')
         return
     end
-    
-    if debugON == true
-        fprintf("Loading from '%s'\n",path);
-    end
-    
-    [w,ProgressBar,waitTime,IDName] = NanoMachineImport_first_stage(title,StdDevWeightingMode,file);
     
     SheetNames = sheetnames(filename);
     

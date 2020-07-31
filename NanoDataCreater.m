@@ -103,16 +103,7 @@ switch MeanSamples
             % METHODS. Works on just one sample.
             FunctionOutPut = NanoImporter(filename,IDName,bins,StdDevWeightingMode,LOC_load,debugON);
             %
-            ValueData(:,:,i) = FunctionOutPut.FinalArray;
-            switch ErrorPlotMode
-                case 'Standard error'
-                    ErrorData(:,:,i) = FunctionOutPut.FinalErrors;
-                case 'Standard deviation'
-                    ErrorData(:,:,i) = FunctionOutPut.FinalStdDev;
-                case ''
-                    ErrorData(:,:,i) = FunctionOutPut.FinalErrors;
-            end
-            BinPopulations(:,i) = FunctionOutPut.BinsPop;
+            [ValueData,ErrorData,BinPopulations] = NonMeanDataGenerator(i,ValueData,ErrorData,FunctionOutPut,ErrorPlotMode);
         end
     case 'Yes'
         disp('Meaning samples!');
@@ -166,11 +157,11 @@ DataIDName = 'PlaceHolder-DataIDName';
 FileStuctures{1} = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',SampleNameList,'DataIDName',DataIDName);
 
 % Below here it works in a similar way to NanoData Loader
-L_fig = figure('Name','LFigure','windowstate','maximized');
-t_fig = figure('Name','tFigure','windowstate','maximized');
-HCS_fig = figure('Name','HCSFigure','windowstate','maximized');
-E_fig = figure('Name','EFigure','windowstate','maximized');
-H_fig = figure('Name','HFigure','windowstate','maximized');
+figure('Name','LFigure','windowstate','maximized');
+figure('Name','tFigure','windowstate','maximized');
+figure('Name','HCSFigure','windowstate','maximized');
+figure('Name','EFigure','windowstate','maximized');
+figure('Name','HFigure','windowstate','maximized');
 
 DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
 PlotDataTypes = ChooseDataToPlot(DataTypeList);
@@ -232,48 +223,48 @@ end
     
 %% Functions
 
-function [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation
-    % Change current directory to the directory to load the data from.
-    
-    % This allows to get the file name and location information for
-    % multiple files, starting from the load location.
-    [file,path] = uigetfile({'*.xlsx;*.xls'},'Select nanoindentation Excel files to import:','MultiSelect','on');
-    
-    if isa(file,'double') == true
-        errordlg('No files selected! Code will terminate!')
-        return
-    end
-    
-    LOC_load = path;
-    
-    % If one file is chosen its file type will be char and not cell, hence
-    % this makes it into a 1x1 cell if true.
-    if isa(file,'char') == true
-        file = cellstr(file);
-    end
-    
-    % This calculates the number of samples the user has chosen based on
-    % the number of files chosen.
-    NumberOfSamples = length(file);
-
-    % This prepares a string array to be filled in with the full filenames
-    % and the name the user wished to label the data with.
-    fileNameList = strings(NumberOfSamples,2);
-
-    % This fills in fileNameList
-    for i =1:NumberOfSamples
-        HeadingName = sprintf('Enter name for nanoindentation data titled "%s":',file{i});
-        CurrName = inputdlg({HeadingName},'Type sample name here:',[1,100]);
-        if ~isempty(CurrName)
-            filename = fullfile(path,file{i});
-            fileNameList(i,1) = string(CurrName);
-            fileNameList(i,2) = filename;
-        else
-            errordlg('No name entered! Code will terminate!')
-            return
-        end
-    end
-end
+% function [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation
+%     % Change current directory to the directory to load the data from.
+%     
+%     % This allows to get the file name and location information for
+%     % multiple files, starting from the load location.
+%     [file,path] = uigetfile({'*.xlsx;*.xls'},'Select nanoindentation Excel files to import:','MultiSelect','on');
+%     
+%     if isa(file,'double') == true
+%         errordlg('No files selected! Code will terminate!')
+%         return
+%     end
+%     
+%     LOC_load = path;
+%     
+%     % If one file is chosen its file type will be char and not cell, hence
+%     % this makes it into a 1x1 cell if true.
+%     if isa(file,'char') == true
+%         file = cellstr(file);
+%     end
+%     
+%     % This calculates the number of samples the user has chosen based on
+%     % the number of files chosen.
+%     NumberOfSamples = length(file);
+% 
+%     % This prepares a string array to be filled in with the full filenames
+%     % and the name the user wished to label the data with.
+%     fileNameList = strings(NumberOfSamples,2);
+% 
+%     % This fills in fileNameList
+%     for i =1:NumberOfSamples
+%         HeadingName = sprintf('Enter name for nanoindentation data titled "%s":',file{i});
+%         CurrName = inputdlg({HeadingName},'Type sample name here:',[1,100]);
+%         if ~isempty(CurrName)
+%             filename = fullfile(path,file{i});
+%             fileNameList(i,1) = string(CurrName);
+%             fileNameList(i,2) = filename;
+%         else
+%             errordlg('No name entered! Code will terminate!')
+%             return
+%         end
+%     end
+% end
 
 function [bins,FormatAnswer,StdDevWeightingMode,ErrorPlotMode] = FormattingChoosing(DefaultDlg)
     dlg_title = 'Nanoindentation Data Creater';
@@ -318,7 +309,18 @@ function [bins,FormatAnswer,StdDevWeightingMode,ErrorPlotMode] = FormattingChoos
     end
 end
 
-
+function [ValueData,ErrorData,BinPopulations] = NonMeanDataGenerator(i,ValueData,ErrorData,BinPopulations,FunctionOutPut,ErrorPlotMode)
+    ValueData(:,:,i) = FunctionOutPut.FinalArray;
+    BinPopulations(:,i) = FunctionOutPut.BinsPop;
+    switch ErrorPlotMode
+        case 'Standard error'
+            ErrorData(:,:,i) = FunctionOutPut.FinalErrors;
+        case 'Standard deviation'
+            ErrorData(:,:,i) = FunctionOutPut.FinalStdDev;
+        case ''
+            ErrorData(:,:,i) = FunctionOutPut.FinalErrors;
+    end
+end
 
 
 function w = wGenerator(StdDevWeightingMode)

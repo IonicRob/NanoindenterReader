@@ -34,9 +34,9 @@ function NanoMachineImport
     
     switch ChosenMethod
         case 'CSM Agilent'
-            OutPut = NanoMachineImport_CSM_Agilent(filename,IDName,bins,StdDevWeightingMode,debugON);
+            OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON);
         case 'QS Bruker'
-            OutPut = NanoMachineImport_QS_Bruker(nan,IDName,bins,StdDevWeightingMode,debugON);
+            OutPut = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON);
     end
     
 end
