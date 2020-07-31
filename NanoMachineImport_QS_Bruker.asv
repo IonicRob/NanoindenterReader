@@ -1,11 +1,32 @@
 %% NanoMachineImport_QS_Bruker
 % By Robert J Scales
+%
+% Currently this code only takes bins up to the maximum indent depth i.e.
+% the loading up path, and not h
 
 function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,~,debugON)
 %%
+    bins = 100;
+    IDName = 'Test';
+    debugON = true;
+    waitTime = 1;
+    StdDevWeightingMode = 'N-1';
+%%
     fprintf('NanoMachineImport_QS_Bruker: Started!\n');
+    
     LOC_init = cd;
     title = 'NanoMachineImport_QS_Bruker';
+    
+    switch StdDevWeightingMode
+        case 'N-1'
+            w = 0;
+        case 'N'
+            w = 1;
+        case 'Using bin errors'
+            w = 0; % Need to update this!!
+        case ''
+            w = 0;
+    end
     
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
@@ -44,7 +65,7 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
         currMatrix = readmatrix(IndentFilename,opts);
         NumOfRows = size(currMatrix,1);
         Depth = currMatrix(:,1); % Depth in nm which is good.
-        Load = currMatrix(:,2)*1000; % Load is converted from uN to mN!
+        Load = currMatrix(:,2)/1000; % Load is converted from uN to mN!
         Time = currMatrix(:,3); % Time in s which is good.
         HCS = nan(NumOfRows,1); % Fake HCS column.
         H = nan(NumOfRows,1); % Fake hardness column.
@@ -52,7 +73,7 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
         currMaxIndentDepth = max(Depth);
         fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
         MaxIndentDepth = max([currMaxIndentDepth,MaxIndentDepth]);
-        OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,E);
+        OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,H,E);
         MasterTable{i} = OutputTable;
         clear currMaxIndentDepth
     end
@@ -79,7 +100,7 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
     PenultimateArray = zeros(bins,5,NumOfIndents);
     PenultimateErrors = zeros(bins,5,NumOfIndents);
     
-%% Binning Main Body    
+%% Binning Main Body
     indProTime = nan(NumOfIndents,1);
     
     % This for loop cycles for each indent
@@ -88,49 +109,34 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
         [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
         
         if debugON == true
-            fprintf("Current indent number = %s/%d\n",SheetNames(SheetNum),SheetNum);
+            fprintf("Current indent number = %d\n",currIndNum);
             fprintf('Cuurent Avg. time per indent is %.3g secs\n\n',indAvgTime(end))
         end
         
         % This selects only the data with reasonable magnitudes.
-        Table_Current = MasterTable{currIndNum};
+        Table_Current = table2array(MasterTable{currIndNum});
+        Table_Current = Table_Current(Table_Current(:,1)>0,:);
+        [~,RowOfMaxDepth] = max(Table_Current(:,1));
+        Table_Current = Table_Current(1:RowOfMaxDepth,:);
         
-        % Produces penultimat the indent displacement array
-        [PenultimateArray,PenultimateErrors] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        % Produces penultimate arrays based on binning the indent depths.
+        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         
         indProTime(currIndNum,1) = toc;
     end
     
+    
 %% Final Compiling
 
-    % This outputs a structure called OutPut which will store all of the
-    % results from the current sample.
-    OutPut.BinMidpoints = bin_midpoints;
-    OutPut.IndentsArray = PenultimateArray;
-    OutPut.FinalArray = horzcat(bin_midpoints,FinalArray);
-    OutPut.FinalStdDev = horzcat(bin_midpoints,FinalStdDev);
-    OutPut.FinalErrors = horzcat(bin_midpoints,FinalErrors);
-    OutPut.BinBoundaries = bin_boundaries;
-    OutPut.DepthLimit = DepthLimit;
-    OutPut.BinsPop = N;
-    % The below is used for clearer code.
-    XData = bin_midpoints;
-    Load =  FinalArray(:,1);
-    Time =  FinalArray(:,2);
-    HCS =   FinalArray(:,3);
-    H =     FinalArray(:,4);
-    E =     FinalArray(:,5);
-    
-    % Creates a table so that the data can be easily analysed.
-    varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
-    OutPut.FinalTable = table(XData,Load,Time,HCS,H,E,'VariableNames',varNames);
+    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime);
+    close(ProgressBar);
     cd(LOC_init)
     fprintf('NanoMachineImport_QS_Bruker: Complete!\n');
 end
 
 %% Functions
 
-function OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,E)
-    VariableNames = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
-    OutputTable = table(Depth,Load,Time,HCS,E,'VariableNames',VariableNames);
+function OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,H,E)
+    VariableNames = {'Depth (nm)','Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
+    OutputTable = table(Depth,Load,Time,HCS,H,E,'VariableNames',VariableNames);
 end
