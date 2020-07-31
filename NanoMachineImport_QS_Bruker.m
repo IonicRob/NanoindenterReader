@@ -5,29 +5,20 @@
 % the loading up path, and not the unloading stage; as this give me a
 % headache trying to sort it out for both directions).
 
-function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,~,debugON)
-%%
+function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,debugON)
+%% Testing Initialisation
+
+testON = false;
+
+if testON == true
     bins = 100;
     IDName = 'Test';
     debugON = true;
-    waitTime = 1;
     StdDevWeightingMode = 'N-1';
-%%
-    fprintf('NanoMachineImport_QS_Bruker: Started!\n');
-    
-    LOC_init = cd;
+end
+%% Setup
     title = 'NanoMachineImport_QS_Bruker';
-    
-    switch StdDevWeightingMode
-        case 'N-1'
-            w = 0;
-        case 'N'
-            w = 1;
-        case 'Using bin errors'
-            w = 0; % Need to update this!!
-        case ''
-            w = 0;
-    end
+    [w,ProgressBar,waitTime] = NanoMachineImport_first_stage(title,StdDevWeightingMode,IDName);
     
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
@@ -82,9 +73,6 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
 %% Binning Set-up
 % Deatils whic differ from NanoMachineImport_CSM_Aglient shall only be
 % mentioned.
-
-    message = sprintf('%s: Setting up',IDName);
-    ProgressBar = waitbar(0,message);
     
     DepthLimit = MaxIndentDepth; % in nm
     bin_boundaries = transpose(linspace(0,DepthLimit,bins+1));
@@ -107,6 +95,7 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
     % This for loop cycles for each indent
     for currIndNum = 1:NumOfIndents
         tic
+        % This updates the progress bar with required details.
         [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
         
         if debugON == true
@@ -120,8 +109,9 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
         [~,RowOfMaxDepth] = max(Table_Current(:,1));
         Table_Current = Table_Current(1:RowOfMaxDepth,:);
         
-        % Produces penultimate arrays based on binning the indent depths.
-        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        % This obtains arrays which are binned for both the value and
+        % standard dev., along with producing an array of the bin counts.
+        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         
         indProTime(currIndNum,1) = toc;
     end
@@ -129,10 +119,12 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
     
 %% Final Compiling
 
+    % This gets the penultimate array data and the other essential
+    % information to produce an output structure containing all of the
+    % information from the indent text files imported.
     OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime);
     close(ProgressBar);
-    cd(LOC_init)
-    fprintf('NanoMachineImport_QS_Bruker: Complete!\n');
+    fprintf('%s: Complete!\n',title);
 end
 
 %% Functions

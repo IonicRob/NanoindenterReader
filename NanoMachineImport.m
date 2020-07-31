@@ -34,10 +34,9 @@ function NanoMachineImport
     
     switch ChosenMethod
         case 'CSM Agilent'
-            msg = {'This method/system is already in the correct format for NanoDataCreate!','Code will terminate...'};
-            PopUpMsg(msg,title,'Help','Exit')
+            OutPut = NanoMachineImport_CSM_Agilent(filename,IDName,bins,StdDevWeightingMode,debugON);
         case 'QS Bruker'
-            
+            OutPut = NanoMachineImport_QS_Bruker(nan,IDName,bins,StdDevWeightingMode,debugON);
     end
     
 end

@@ -183,7 +183,7 @@ NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer,figHandles,PlottingInfo);
 
 LoadingMode = false;
 cd(LOC_init);
-[DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList);    
+[DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,LOC_load,dlg_title,fileNameList);    
 
 dataToSave = FileStuctures{1};
 dataToSave.DataIDName = DataIDName;

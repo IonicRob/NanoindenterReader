@@ -10,7 +10,7 @@
 % each of these bin ranges and find the mean average value. It will then
 % find the average bin value for of all of the indents for each bin.
 
-function OutPut = NanoImporter_CSM_Aglient(filename,IDName,bins,StdDevWeightingMode,LOC_load,debugON)
+function OutPut = NanoMachineImport_CSM_Agilent(filename,IDName,bins,StdDevWeightingMode,debugON)
     %% Testing Section
     % Set 'testON' to true to allow for testing of this code itself.
     
@@ -22,27 +22,16 @@ function OutPut = NanoImporter_CSM_Aglient(filename,IDName,bins,StdDevWeightingM
         bins = 100;
         debugON = true;
         StdDevWeightingMode = 'N-1';
-        LOC_load = 'C:\Users\rober_000\OneDrive\Documents\2020 Summer Work\Matlab Codes';
-        %LOC_load = 'C:\Users\robert\Desktop\Summer Project 2019 desktop\Summer Project Stuff 2019\Updated nanoindent excels\cleaned files';
-        % For filename put in the fullfile location of the data you want to
-        % test with.
-        cd(LOC_load);
         [file,path] = uigetfile('*.xlsx','Select nanoindentation Excel file to import:');
         filename = fullfile(path,file);
+        fprintf("Loading from '%s'\n",path);
     end
     
-    %% Setup
+%% Setup
     
-    message = sprintf('%s: Setting up',IDName);
-    ProgressBar = waitbar(0,message);
-    
-    if debugON == true
-        fprintf("Loading from '%s'\n",LOC_load);
-        waitTime = 1;
-    end
-    
-    cd(LOC_load);
-    
+    title = 'NanoMachineImport_CSM_Agilent';
+    [w,ProgressBar,waitTime] = NanoMachineImport_first_stage(title,StdDevWeightingMode,IDName);
+        
     SheetNames = sheetnames(filename);
     
     % This accesses the first sheet named 'Results'
@@ -92,6 +81,7 @@ function OutPut = NanoImporter_CSM_Aglient(filename,IDName,bins,StdDevWeightingM
     % This for loop cycles for each indent
     for currIndNum = 1:NumOfIndents
         tic
+        % This updates the progress bar with required details.
         [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
 
         % There are 4 sheets auto-generated that aren't indent data, then
@@ -112,8 +102,9 @@ function OutPut = NanoImporter_CSM_Aglient(filename,IDName,bins,StdDevWeightingM
         
         % This selects only the data with reasonable magnitudes.
         Table_Current = Table_Sheet(GoodRows,:);
-        % This is the indent displacement array
 
+        % This obtains arrays which are binned for both the value and
+        % standard dev., along with producing an array of the bin counts.
         [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         
         indProTime(currIndNum,1) = toc;
@@ -121,61 +112,10 @@ function OutPut = NanoImporter_CSM_Aglient(filename,IDName,bins,StdDevWeightingM
     waitbar(1,ProgressBar,'Finished working on indents!');
     %% Final Averaging for Indent Array
     
-    % FinalArray averages along the 3rd axis, which is then effectively
-    % averaging accross the indents, and if there are NaN's it ignores
-    % those.
-    
-    switch StdDevWeightingMode
-        case 'N-1'
-            w = 0;
-        case 'N'
-            w = 1;
-        case 'Using bin errors'
-            w = 0; % Need to update this!!
-        case ''
-            w = 0;
-    end
-    
-    
-    FinalArray = mean(PenultimateArray,3,'omitnan');
-    % This calculates the standard error using the above weighting choice.
-    FinalStdDev = std(PenultimateArray,w,3,'omitnan');
-    % This is the standard error.
-    FinalErrors = FinalStdDev/realsqrt(NumOfIndents);
-    
-    % This outputs a structure called OutPut which will store all of the
-    % results from the current sample.
-    OutPut.BinMidpoints = bin_midpoints;
-    OutPut.IndentsArray = PenultimateArray;
-    OutPut.FinalArray = horzcat(bin_midpoints,FinalArray);
-    OutPut.FinalStdDev = horzcat(bin_midpoints,FinalStdDev);
-    OutPut.FinalErrors = horzcat(bin_midpoints,FinalErrors);
-    OutPut.BinBoundaries = bin_boundaries;
-    OutPut.DepthLimit = DepthLimit;
-    OutPut.BinsPop = N;
-    % The below is used for clearer code.
-    XData = bin_midpoints;
-    Load =  FinalArray(:,1);
-    Time =  FinalArray(:,2);
-    HCS =   FinalArray(:,3);
-    H =     FinalArray(:,4);
-    E =     FinalArray(:,5);
-    
-    % Creates a table so that the data can be easily analysed.
-    varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
-    OutPut.FinalTable = table(XData,Load,Time,HCS,H,E,'VariableNames',varNames);
-    
-    
-    % This plots all of the data for waitTime seconds before closing the figures
-    if debugON == true
-        for i=1:5
-            DebugFigure = figure();
-            plot(XData,FinalArray(:,i));
-            title(varNames{i+1});
-            xlabel(varNames{1});
-            pause(waitTime);
-            close(DebugFigure);
-        end
-    end
+    % This gets the penultimate array data and the other essential
+    % information to produce an output structure containing all of the
+    % information from the imported Excel spreadsheet.
+    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime);
     close(ProgressBar);
+    fprintf('%s: Completed!\n',title);
 end

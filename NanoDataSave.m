@@ -1,11 +1,11 @@
 %% Saving Results
 
 
-function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,LOC_load,dlg_title,fileNameList)
+function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList)
     fprintf('NanoDataSave: Started!\n');
 
     quest = {'Save the figures and file names?:'};
-    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_load,LOC_init);
+    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
 
     if ~strcmp(SavingLocYN,'do not save data')
         cd(LOC_save);
