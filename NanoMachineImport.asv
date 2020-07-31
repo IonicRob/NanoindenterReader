@@ -19,43 +19,33 @@ function NanoMachineImport
         ChosenMethod = ValidMethodList{ChosenMethod};
     else
         msg = {'No method/system was chosen!','Code will terminate!'};
-        PopUpMsg(msg,title,'Error','Exit')
+        PopUpMsg(msg,title,'Error')
     end
     
     if strcmp(ChosenMethod,'Help')
         msg = {'Method selection list legend:','CSM = Continuous Stiffness Measurement','QS = Quasi-standard Trapezoid'};
-        PopUpMsg(msg,title,'Help','Restart')
+        PopUpMsg(msg,title,'Help')
     elseif strcmp(ChosenMethod,'Other')
         msg = {'Sorry but this method/system is not yet supported by this code!','Help contribute to the this code GitHub to add support for your method/system!'};
-        PopUpMsg(msg,title,'Error','Exit')
+        PopUpMsg(msg,title,'Error')
     else
         disp('Code will continue...')
     end
     
-    switch ChosenMethod
-        case 'CSM Agilent'
-            msg = {'This method/system is already in the correct format for NanoDataCreate!','Code will terminate...'};
-            PopUpMsg(msg,title,'Help','Exit')
-        case 'QS Bruker'
-            
-    end
+    switch
     
 end
 
 %% Functions
 
-function PopUpMsg(msg,title,ErrorOrHelp,ExitOrRestart)
+function PopUpMsg(msg,title,ErrorOrHelp)
     switch ErrorOrHelp
         case 'Error'
             PopUp = errordlg(msg,title);
-        case 'Help'
-            PopUp = helpdlg(msg,title);
-    end
-    switch ExitOrRestart
-        case 'Exit'
             waitfor(PopUp);
             return
-        case 'Restart'
+        case 'Help'
+            PopUp = helpdlg(msg,title);
             waitfor(PopUp);
             NanoMachineImport
     end
