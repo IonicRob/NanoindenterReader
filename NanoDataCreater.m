@@ -41,7 +41,8 @@ if strcmp(ImportNewYS,'Yes') || logical(exist('SettingsDone','var')) == false
     LOC_init = cd;
 
     % The below selects the files to be imported and names each of
-    % them.
+    % them. NEED TO UPDATE THE FUNCTION TO BE MORE INCLUSIVE OF OTHER
+    % METHODS.
     [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation;
 end
 
@@ -111,7 +112,10 @@ switch MeanSamples
             filename = fileNameList(i,2);
             cd(LOC_init);
             IDName = fileNameList(i,1);
+            % WANT TO CHANGE THE BELOW TO MAKE IT MORE INCLUSIVE OF OTHER
+            % METHODS. Works on just one sample.
             FunctionOutPut = NanoImporter(filename,IDName,bins,StdDevWeightingMode,LOC_load,debugON);
+            %
             ValueData(:,:,i) = FunctionOutPut.FinalArray;
             switch ErrorPlotMode
                 case 'Standard error'
