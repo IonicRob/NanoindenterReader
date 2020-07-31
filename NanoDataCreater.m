@@ -36,7 +36,14 @@ LOC_init = cd;
 % The below selects the files to be imported and names each of
 % them. NEED TO UPDATE THE FUNCTION TO BE MORE INCLUSIVE OF OTHER
 % METHODS.
-[fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation;
+% [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation;
+
+prompt = 'Type in the number of samples to load';
+NumberOfSamples = str2double(inputdlg(prompt,dlg_title));
+
+% This prepares a string array to be filled in with the full filenames
+% and the name the user wished to label the data with.
+fileNameList = strings(NumberOfSamples,2);
 
 %% Settings
 
@@ -224,6 +231,7 @@ end
 
     
 %% Functions
+
 function [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation
     % Change current directory to the directory to load the data from.
     
@@ -266,7 +274,6 @@ function [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation
         end
     end
 end
-
 
 function [bins,FormatAnswer,StdDevWeightingMode,ErrorPlotMode] = FormattingChoosing(DefaultDlg)
     dlg_title = 'Nanoindentation Data Creater';
