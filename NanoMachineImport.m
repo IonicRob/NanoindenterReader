@@ -8,7 +8,7 @@
 
 % Quasistandard trapezoid method
 
-function NanoMachineImport
+function OutPut = NanoMachineImport(bins,StdDevWeightingMode,debugON)
     
     title = 'NanoMachineImport';
 
