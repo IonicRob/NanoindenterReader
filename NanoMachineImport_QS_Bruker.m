@@ -1,7 +1,11 @@
 %% NanoMachineImport_QS_Bruker
 % By Robert J Scales
 
-function NanoMachineImport_QS_Bruker
+function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,~,debugON)
+%%
+    bins = 100;
+    IDName = 'Test';
+    debugON = true;
 %%
     fprintf('NanoMachineImport_QS_Bruker: Started!\n');
     LOC_init = cd;
@@ -19,7 +23,7 @@ function NanoMachineImport_QS_Bruker
         return
     end
     
-%     LOC_load = path;
+    LOC_load = path;
     
     % If one file is chosen its file type will be char and not cell, hence
     % this makes it into a 1x1 cell if true.
@@ -29,22 +33,22 @@ function NanoMachineImport_QS_Bruker
     
     % This calculates the number of samples the user has chosen based on
     % the number of files chosen.
-    NumberOfIndents = length(file);
+    NumOfIndents = length(file);
     
     MaxIndentDepth = nan;
     
-    MasterTable = cell(NumberOfIndents,1);
+    MasterTable = cell(NumOfIndents,1);
     
     % This fills in fileNameList
-    for i =1:NumberOfIndents
+    for i =1:NumOfIndents
         fprintf('Current file loaded = %s\n',file{i});
-        filename = fullfile(path,file{i});
-        opts = detectImportOptions(filename,'VariableNamesLine',6,'Encoding','windows-1252','ExpectedNumVariables',5,'PreserveVariableNames',true);
+        IndentFilename = fullfile(path,file{i});
+        opts = detectImportOptions(IndentFilename,'VariableNamesLine',6,'Encoding','windows-1252','ExpectedNumVariables',5,'PreserveVariableNames',true);
 %         currTable = readtable(filename,opts);
-        currMatrix = readmatrix(filename,opts);
+        currMatrix = readmatrix(IndentFilename,opts);
         NumOfRows = size(currMatrix,1);
         Depth = currMatrix(:,1); % Depth in nm which is good.
-        Load = currMatrix(:,2)*1000; % Load is converted from uN to mN!
+        Load = currMatrix(:,2)/1000; % Load is converted from uN to mN!
         Time = currMatrix(:,3); % Time in s which is good.
         HCS = nan(NumOfRows,1); % Fake HCS column.
         H = nan(NumOfRows,1); % Fake hardness column.
@@ -52,17 +56,90 @@ function NanoMachineImport_QS_Bruker
         currMaxIndentDepth = max(Depth);
         fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
         MaxIndentDepth = max([currMaxIndentDepth,MaxIndentDepth]);
-        OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,E);
+        OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,H,E);
         MasterTable{i} = OutputTable;
+        clear currMaxIndentDepth
     end
     
+%% Binning Set-up
+% Deatils whic differ from NanoMachineImport_CSM_Aglient shall only be
+% mentioned.
+
+    message = sprintf('%s: Setting up',IDName);
+    ProgressBar = waitbar(0,message);
+    
+    DepthLimit = MaxIndentDepth; % in nm
+    bin_boundaries = transpose(linspace(0,DepthLimit,bins+1));
+
+    % This section generates the names of the bin boundaries, which will
+    % pop up during debug if it can't compute a bin. The midpoints of the
+    % bins which are used as the x-axis points are also calculated.
+    bin_boundaries_text = strings(bins,1);
+    bin_midpoints = zeros(bins,1);
+    for BinNum=1:bins
+        bin_boundaries_text(BinNum,1) = sprintf("%d:%d",bin_boundaries(BinNum),bin_boundaries(BinNum+1));
+        bin_midpoints(BinNum,1) = mean([bin_boundaries(BinNum),bin_boundaries(BinNum+1)]);
+    end
+    PenultimateArray = zeros(bins,5,NumOfIndents);
+    PenultimateErrors = zeros(bins,5,NumOfIndents);
+    
+%% Binning Main Body
+    indProTime = nan(NumOfIndents,1);
+    
+    % This for loop cycles for each indent
+    for currIndNum = 1:NumOfIndents
+        tic
+        [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
+        
+        if debugON == true
+            fprintf("Current indent number = %d\n",currIndNum);
+            fprintf('Cuurent Avg. time per indent is %.3g secs\n\n',indAvgTime(end))
+        end
+        
+        % This selects only the data with reasonable magnitudes.
+        Table_Current = table2array(MasterTable{currIndNum});
+        Table_Current = Table_Current(Table_Current(:,1)>0,:);
+        [~,RowOfMaxDepth] = max(Table_Current(:,1));
+        Table_Current = Table_Current(1:RowOfMaxDepth,:);
+        
+        % Produces penultimate arrays based on binning the indent depths.
+        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        
+        indProTime(currIndNum,1) = toc;
+    end
+    
+%     plot(bin_midpoints,PenultimateArray(:,1,1))
+    
+%% Final Compiling
+
+    % This outputs a structure called OutPut which will store all of the
+    % results from the current sample.
+    OutPut.BinMidpoints = bin_midpoints;
+    OutPut.IndentsArray = PenultimateArray;
+    OutPut.FinalArray = horzcat(bin_midpoints,FinalArray);
+    OutPut.FinalStdDev = horzcat(bin_midpoints,FinalStdDev);
+    OutPut.FinalErrors = horzcat(bin_midpoints,FinalErrors);
+    OutPut.BinBoundaries = bin_boundaries;
+    OutPut.DepthLimit = DepthLimit;
+    OutPut.BinsPop = N;
+    % The below is used for clearer code.
+    XData = bin_midpoints;
+    Load =  FinalArray(:,1);
+    Time =  FinalArray(:,2);
+    HCS =   FinalArray(:,3);
+    H =     FinalArray(:,4);
+    E =     FinalArray(:,5);
+    
+    % Creates a table so that the data can be easily analysed.
+    varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
+    OutPut.FinalTable = table(XData,Load,Time,HCS,H,E,'VariableNames',varNames);
     cd(LOC_init)
     fprintf('NanoMachineImport_QS_Bruker: Complete!\n');
 end
 
 %% Functions
 
-function OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,E)
-    OutputTable = table(Depth,Load,Time,HCS,E);
-    OutputTable
+function OutputTable = MakeTableForIndent(Depth,Load,Time,HCS,H,E)
+    VariableNames = {'Depth (nm)','Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
+    OutputTable = table(Depth,Load,Time,HCS,H,E,'VariableNames',VariableNames);
 end
