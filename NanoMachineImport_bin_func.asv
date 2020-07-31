@@ -1,0 +1,66 @@
+%% NanoMachineImport_bin_func
+
+function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,MonotonicONOFF,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
+%%
+
+% NEED TO UPDATE THIS SO w CAN CHANGE!
+w = 0;
+
+    if MonotonicONOFF == true
+        % This bins the indent head displacement and counts how many in
+        % each bin along with what bin each row belongs to.
+        [N,~,binIndex] = histcounts(Table_Current(:,1),bin_boundaries);
+
+        % This will cycle through each of the bins
+        for BinNum=1:bins
+            % This finds the displacment data which are within the bin
+            % range, and then selects the appropriate data.
+                %DataInBin_and_x = Table_Current(( binIndex == BinNum ),:);
+            DataInBin = Table_Current(( binIndex == BinNum ),2:end);
+            % The data is then mean averaged along each column i.e.
+            % along each type of measurement.
+            Bin_Data = mean(DataInBin,1,'omitnan');
+            % EARLIER DIDN'T DO WEIGHTING PROPERLY!
+            Bin_StdDev = std(DataInBin,w,1,'omitnan');
+            Bin_Error = Bin_StdDev/realsqrt(N(BinNum));
+
+            % This adds the data into the 3D array.
+            PenultimateArray(BinNum,:,currIndNum) = Bin_Data;
+            PenultimateErrors(BinNum,:,currIndNum) = Bin_Error;
+            message = sprintf('%s - Indent %d/%d - Bin %d/%d\nTime Left ~ %.3g secs',IDName,currIndNum,NumOfIndents,BinNum,bins,RemainingTime);
+            waitbar((currIndNum-1)/NumOfIndents,ProgressBar,message);
+        end
+    elseif MonotonicONOFF == false
+        % This assumes it is like loading and unloading curves and so
+        % splits the two up into seperate arrays, which are then
+        % individually binned.
+        [~,MaxDepthRow] = max(Table_Current(:,1));
+        LoadingUpTable = Table_Current(1:MaxDepthRow,:);
+        [N_up,Edges_up,binIndex_up] = histcounts(LoadingUpTable(:,1),bin_boundaries);
+        LoadingDownTable = Table_Current(MaxDepthRow:end,:);
+        [N_down,Edges_down,binIndex_down] = histcounts(LoadingDownTable(:,1),bin_boundaries);
+        
+        for R = 1:2
+            
+            % This will cycle through each of the bins
+            for BinNum=1:bins
+                % This finds the displacment data which are within the bin
+                % range, and then selects the appropriate data.
+                    %DataInBin_and_x = Table_Current(( binIndex == BinNum ),:);
+                DataInBin = Table_Current(( binIndex == BinNum ),2:end);
+                % The data is then mean averaged along each column i.e.
+                % along each type of measurement.
+                Bin_Data = mean(DataInBin,1,'omitnan');
+                % EARLIER DIDN'T DO WEIGHTING PROPERLY!
+                Bin_StdDev = std(DataInBin,w,1,'omitnan');
+                Bin_Error = Bin_StdDev/realsqrt(N(BinNum));
+
+                % This adds the data into the 3D array.
+                PenultimateArray(BinNum,:,currIndNum) = Bin_Data;
+                PenultimateErrors(BinNum,:,currIndNum) = Bin_Error;
+                message = sprintf('%s - Indent %d/%d - Bin %d/%d\nTime Left ~ %.3g secs',IDName,currIndNum,NumOfIndents,BinNum,bins,RemainingTime);
+                waitbar((currIndNum-1)/NumOfIndents,ProgressBar,message);
+            end
+        end
+    end
+end
