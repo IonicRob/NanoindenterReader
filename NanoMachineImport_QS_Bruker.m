@@ -1,15 +1,33 @@
 %% NanoMachineImport_QS_Bruker
 % By Robert J Scales
+%
+% Currently this code only takes bins up to the maximum indent depth (i.e.
+% the loading up path, and not the unloading stage; as this give me a
+% headache trying to sort it out for both directions).
 
 function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,~,debugON)
 %%
     bins = 100;
     IDName = 'Test';
     debugON = true;
+    waitTime = 1;
+    StdDevWeightingMode = 'N-1';
 %%
     fprintf('NanoMachineImport_QS_Bruker: Started!\n');
+    
     LOC_init = cd;
     title = 'NanoMachineImport_QS_Bruker';
+    
+    switch StdDevWeightingMode
+        case 'N-1'
+            w = 0;
+        case 'N'
+            w = 1;
+        case 'Using bin errors'
+            w = 0; % Need to update this!!
+        case ''
+            w = 0;
+    end
     
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
@@ -108,31 +126,11 @@ function OutPut = NanoMachineImport_QS_Bruker(~,IDName,bins,StdDevWeightingMode,
         indProTime(currIndNum,1) = toc;
     end
     
-%     plot(bin_midpoints,PenultimateArray(:,1,1))
     
 %% Final Compiling
 
-    % This outputs a structure called OutPut which will store all of the
-    % results from the current sample.
-    OutPut.BinMidpoints = bin_midpoints;
-    OutPut.IndentsArray = PenultimateArray;
-    OutPut.FinalArray = horzcat(bin_midpoints,FinalArray);
-    OutPut.FinalStdDev = horzcat(bin_midpoints,FinalStdDev);
-    OutPut.FinalErrors = horzcat(bin_midpoints,FinalErrors);
-    OutPut.BinBoundaries = bin_boundaries;
-    OutPut.DepthLimit = DepthLimit;
-    OutPut.BinsPop = N;
-    % The below is used for clearer code.
-    XData = bin_midpoints;
-    Load =  FinalArray(:,1);
-    Time =  FinalArray(:,2);
-    HCS =   FinalArray(:,3);
-    H =     FinalArray(:,4);
-    E =     FinalArray(:,5);
-    
-    % Creates a table so that the data can be easily analysed.
-    varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
-    OutPut.FinalTable = table(XData,Load,Time,HCS,H,E,'VariableNames',varNames);
+    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime);
+    close(ProgressBar);
     cd(LOC_init)
     fprintf('NanoMachineImport_QS_Bruker: Complete!\n');
 end
