@@ -1,5 +1,12 @@
 %% NanoMachineImport
 % By Robert J Scales
+%
+% The below calls the NanoMachineImport function, which asks what machine
+% brand and method the data you want to import is from. It then chooses
+% the appropriate function to generate a structure containing all of the
+% data for that sample, along with a name for that sample, and the full
+% filename for those indent(s).
+%
 % The objective of this code is to choose which machine the data you want
 % to import is from. If it is produced from the Aglient software (e.g. XP
 % or G200) then no changes will be made. However, if it is from another

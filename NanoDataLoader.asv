@@ -2,44 +2,21 @@
 % Written by Robert J Scales
 
 function NanoDataLoader(debugON,PlotAesthetics,DefaultDlg,ImageFormatType)
-%Clear the command window
-clc ; close all
-fprintf('NanoDataLoader: Started!\n\n');
+%% Set-up
+% The comments for what the below does can be found pretty much in
+% NanoDataCreater!
 
+clc;
+dlg_title = 'NanoindentationDataLoader';
+fprintf('%s: Started!\n\n',dlg_title);
+NanoCreaterLoaderClearer(false,false);
+LOC_init = cd;
 
-%% Pre-defined User Settings
+% This loads the ".mat" files produced by NanoDataCreater which the user
+% wishes to plot on the same figure.
+[FileStuctures,fileNameList,~] = LoadingFilesFunc(debugON);
 
-dlg_title = 'Nanoindentation Data Loader';
-
-% This is a list of all of the variables we have defined up here, used so
-% that they won't be deleted when clearvars is used later.
-InitialSettingsList = {'dlg_title','debugON','PlotAesthetics','DefaultDlg','USS','ImageFormatType'};
-
-%% Initialisation
-
-% This question dialogue box changes the course whether to select new files
-% or to keep the ones previously selected if the code has been ran before.
-LoadNewYS = questdlg('Do you need to load new data?','Nanoindentation Data Loader','Yes','No','Yes');
-switch LoadNewYS
-    case 'Yes'
-        InitialSettingsList2 = {'LoadNewYS','SettingsDone','FormatAnswer'};
-        InitialSettingsList = horzcat(InitialSettingsList,InitialSettingsList2);
-        clearvars('-except',InitialSettingsList{:});
-        
-%         uisetpref('clearall');
-        
-        LOC_init = cd;
-        
-        [FileStuctures,fileNameList,LOC_load] = YesModeLoading(debugON);
-    case 'No'
-        disp('Using the same data as before!')
-    case ''
-        errordlg('Exit button was pressed! Code will terminate!')
-        return
-end
-
-%% Settings
-
+% The below chooses how the data will be p
 [FormatAnswer] = FormattingChoosing(dlg_title,DefaultDlg);
 
 %% Plotting
@@ -47,12 +24,11 @@ cd(LOC_init);
 
 close all
 
-
-L_fig = figure('Name','LFigure','windowstate','maximized');
-t_fig = figure('Name','tFigure','windowstate','maximized');
-HCS_fig = figure('Name','HCSFigure','windowstate','maximized');
-E_fig = figure('Name','EFigure','windowstate','maximized');
-H_fig = figure('Name','HFigure','windowstate','maximized');
+figure('Name','LFigure','windowstate','maximized');
+figure('Name','tFigure','windowstate','maximized');
+figure('Name','HCSFigure','windowstate','maximized');
+figure('Name','EFigure','windowstate','maximized');
+figure('Name','HFigure','windowstate','maximized');
 
 DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
 PlotDataTypes = ChooseDataToPlot(DataTypeList);
@@ -103,9 +79,7 @@ end
 
     
 %% Functions
-function [FileStuctures,fileNameList,LOC_load] = YesModeLoading(debugON)
-    % Change current directory to the directory to load the data from.
-    
+function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)    
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
     
@@ -146,7 +120,6 @@ function [FileStuctures,fileNameList,LOC_load] = YesModeLoading(debugON)
         %FileStuctures(i) = load(filename,'-mat');
         FileStucturesProto = load(filename,'-mat');
         FileStuctures{i} = FileStucturesProto.dataToSave;
-        clear('FileStucturesProto','i','filename');
         if debugON == true
             fprintf('Loaded file named "%s"\n',file{i});
         end
