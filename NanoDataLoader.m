@@ -72,8 +72,13 @@ NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer,figHandles,PlottingInfo);
 
 
 cd(LOC_init);
-NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_load,LOC_init);
-
+ToMeanOrNotToMean = questdlg('Find a mean value within a range?',dlg_title,'Yes','No','No');
+switch ToMeanOrNotToMean
+    case 'Yes'
+        NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init);
+    otherwise
+        disp('You have decided not to find the mean value within a range...');
+end
 
 %% Saving Results
 
