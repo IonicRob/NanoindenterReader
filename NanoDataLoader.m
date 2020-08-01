@@ -45,7 +45,7 @@ end
 LoadingMode = true;
 cd(LOC_init);
 % The output data is mainly useful for NanoDataCreater but not for this.
-[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList);
+[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList);
 
 
 fprintf('NanoDataLoader: Complete!\n\n');

@@ -1,8 +1,9 @@
 %% Saving Results
 
 
-function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList)
-    fprintf('NanoDataSave: Started!\n');
+function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList)
+    dlg_title = 'NanoDataSave';
+    fprintf('%s: Started!\n',NanoDataSave);
 
     quest = {'Save the figures and file names?:'};
     [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
@@ -51,6 +52,8 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
     fprintf('NanoDataSave: Complete!\n\n');
 end
 
+%% Functions
+
 function cycleAndSaveFiguresFunc(DataIDName,figHandles,ImageFormatType,SaveTime,SavingData,dlg_title)
     NumOfFigures = length(figHandles);
     for i = 1:NumOfFigures
@@ -73,16 +76,3 @@ function cycleAndSaveFiguresFunc(DataIDName,figHandles,ImageFormatType,SaveTime,
     end
     commandwindow
 end
-
-% function SaveData(ValueData,ErrorData,SampleNameList,DataIDName,SaveTime,SavingData)
-%     dataToSave = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',SampleNameList,'DataIDName',DataIDName);
-%     DataSaveName = sprintf('%s_%s_Data.mat',DataIDName,SaveTime);
-%         switch SavingData
-%             case 'auto'
-%                 save(DataSaveName,'dataToSave','-mat');
-%                 fprintf('Auto-saved "%s"...\n',DataIDName);
-%             case 'semi-auto'
-%                 uisave('dataToSave',DataSaveName);
-%                 fprintf('Semi-auto-saved "%s"...\n',DataIDName);
-%         end
-% end

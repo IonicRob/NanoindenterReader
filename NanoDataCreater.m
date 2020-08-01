@@ -148,7 +148,7 @@ LoadingMode = false;
 
 cd(LOC_init);
 % This function saves the figures efficiently.
-[DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList);    
+[DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList);    
 
 % The below few lines generates a structure based on the one generated
 % above but changes the DataIDName to that generated in NanoDataSave.
