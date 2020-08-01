@@ -9,6 +9,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     message = {'This function (NanoMeaner) uses the following settings:';'w = 0';'Error = standard deviation'};
     NanoMeanerMemo = helpdlg(message,title);
     waitfor(NanoMeanerMemo);
+    w = 0;
     
     % This is the ammended list, as there's no point choosing the range
     % for figures that were chosen not to plot by the user.
@@ -120,7 +121,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
         disp('You have chosen not to save the range mean table!');
         % Setting DataIDName to nan will then make NanoDataSave ask for
         % DataIDName when it runs.
-        DataIDName = nan;
+        DataIDName = '';
     end
     
 

@@ -1,7 +1,9 @@
 %% NanoPlotter
 % By Robert J Scales
+%
+% DataTypeList,PlotDataTypes,figHandles are needed by NanoMeaner
 
-function NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer)
+function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer)
     fprintf('NanoPlotter: Started!\n');
 
     DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};

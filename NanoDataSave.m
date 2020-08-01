@@ -3,7 +3,7 @@
 
 function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName)
     dlg_title = 'NanoDataSave';
-    fprintf('%s: Started!\n',NanoDataSave);
+    fprintf('%s: Started!\n',dlg_title);
 
     % Opens up a function asking how the user wants to save the data if at
     % all.
@@ -15,7 +15,7 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
         
         % If running in Create mode OR DataIDName = nan, then it will ask
         % for you to input DataIDName, otherwise it will do nothing to it.
-        if LoadingMode == false || isnan(DataIDName) == true
+        if LoadingMode == false || isempty(DataIDName) == true
             DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
         else
             fprintf('Pre-existing DataIDName made, called "%s"\n',DataIDName);
@@ -48,7 +48,7 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
         end
     else
         disp('You have chosen not to save data!');
-        DataIDName = nan;
+        DataIDName = '';
         SaveTime = nan;
         SavingData = nan;
         LOC_save = nan;
@@ -56,7 +56,7 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
 
 
     cd(LOC_init);
-    fprintf('%s: Completed!\n\n',NanoDataSave);
+    fprintf('%s: Completed!\n\n',dlg_title);
 end
 
 %% Functions

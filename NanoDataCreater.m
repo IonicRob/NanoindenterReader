@@ -138,7 +138,7 @@ FileStuctures{1} = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNam
 
 % This function plots all of the figures that you want to plot based on the
 % structure FileStuctures generated above to describe this session.
-NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer);
+[~,~,~] = NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer);
 
 %% Saving Results
 
@@ -148,7 +148,7 @@ LoadingMode = false;
 
 cd(LOC_init);
 % This function saves the figures efficiently.
-DataIDName = nan; % This is just double checking that you will have to write the value for this in NanoDataSave.
+DataIDName = ''; % This is just double checking that you will have to write the value for this in NanoDataSave.
 [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName);    
 
 % The below few lines generates a structure based on the one generated
