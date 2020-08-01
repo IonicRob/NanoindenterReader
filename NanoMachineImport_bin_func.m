@@ -20,7 +20,7 @@ function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,T
         % range, and then selects the appropriate data.
         DataInBin = Table_Current(( binIndex == BinNum ),2:end);
         
-        % The data is then mean averaged along each column i.e.
+        % The data is then mean averaged along each column (1) i.e.
         % along each type of measurement.
         Bin_Data = mean(DataInBin,1,'omitnan');
         Bin_StdDev = std(DataInBin,w,1,'omitnan');

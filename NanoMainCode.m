@@ -9,7 +9,8 @@ clc
 % Closes all figures
 close all
 
-% Clears variables except for those listed
+% Clears variables except for those listed. This will be done every time
+% you restart Matlab anyway so don't worry.
 %   clearvars('-except','ImageFormatType');
 
 % The below clears all of the 'Do Not Show This Again' for

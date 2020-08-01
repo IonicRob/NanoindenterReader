@@ -191,19 +191,13 @@ function [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues
     % Using the closest indicices we get the data (excluding the bin
     % midpoints) which will be processed.
     DataToMean = currValueData(ClosestIndices(1):ClosestIndices(2),2:end);
-    % The 1 in the two variables below means to mean and standard deviates
-    % across the columns in DataToMean.
+    % The 1 in the two 
     BasicMeanOfValuesInRange = mean(DataToMean,1,'omitnan');
     BasicStdDevOfValuesInRange = std(DataToMean,w,1,'omitnan');
     
-    % The below is set in case another method to obtain the values is made,
-    % and then that can be switched e.g. using standard error rather than
-    % standard deviation.
     RangeMeanValues = BasicMeanOfValuesInRange;
     RangeErrorValues = BasicStdDevOfValuesInRange;
     
-    % The below generates strings to show what range was used in the end
-    % and for what the values and their associated errors were.
     RangeUsedString = string(sprintf('%d-%d',UsedRange(1),UsedRange(2)));
     ValuesAndErrorsString = ValuesAndErrors2String(RangeMeanValues,RangeErrorValues);
     if NanoMeanerdDebugON
@@ -213,8 +207,6 @@ function [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues
     end
 end
 
-% This generates the sting which puts the values and errors for each sample
-% into the format of "value+-error"
 function ValuesAndErrorsString = ValuesAndErrors2String(RangeMeanValues,RangeErrorValues)
     Dimensions = size(RangeMeanValues);
     ValuesAndErrorsString = strings(Dimensions(1),Dimensions(2));
@@ -223,14 +215,13 @@ function ValuesAndErrorsString = ValuesAndErrors2String(RangeMeanValues,RangeErr
     end
 end
 
-% This updates the table named "Table" with the the data
-function Table = AddingDataIntoTable(Table,CurrRowPosition,CurrentIDName,currSampleName,RangeUsedString,ValuesAndErrors)
-    Table(CurrRowPosition,1) = table(CurrentIDName);
-    Table(CurrRowPosition,2) = table(currSampleName);
-    Table(CurrRowPosition,3) = table(RangeUsedString);
-    Table(CurrRowPosition,4) = table(ValuesAndErrors(1));
-    Table(CurrRowPosition,5) = table(ValuesAndErrors(2));
-    Table(CurrRowPosition,6) = table(ValuesAndErrors(3));
-    Table(CurrRowPosition,7) = table(ValuesAndErrors(4));
-    Table(CurrRowPosition,8) = table(ValuesAndErrors(5));
+function NanoMeanerTable = AddingDataIntoTable(NanoMeanerTable,CurrRowPosition,CurrentIDName,currSampleName,RangeUsedString,ValuesAndErrorsString)
+    NanoMeanerTable(CurrRowPosition,1) = table(CurrentIDName);
+    NanoMeanerTable(CurrRowPosition,2) = table(currSampleName);
+    NanoMeanerTable(CurrRowPosition,3) = table(RangeUsedString);
+    NanoMeanerTable(CurrRowPosition,4) = table(ValuesAndErrorsString(1));
+    NanoMeanerTable(CurrRowPosition,5) = table(ValuesAndErrorsString(2));
+    NanoMeanerTable(CurrRowPosition,6) = table(ValuesAndErrorsString(3));
+    NanoMeanerTable(CurrRowPosition,7) = table(ValuesAndErrorsString(4));
+    NanoMeanerTable(CurrRowPosition,8) = table(ValuesAndErrorsString(5));
 end

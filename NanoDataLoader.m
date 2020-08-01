@@ -26,21 +26,25 @@ LOC_init = cd;
 NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer);
 
 %% Meaning the data across a depth range
-
+% This section will generate an Excel table that contains the meaned value
+% and its associaed error based on an indent depth range given by the user.
 
 cd(LOC_init);
 ToMeanOrNotToMean = questdlg('Find a mean value within a range?',dlg_title,'Yes','No','No');
 switch ToMeanOrNotToMean
     case 'Yes'
-        NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init);
+        % This is the function that does all of the work.
+        NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON);
     otherwise
         disp('You have decided not to find the mean value within a range...');
 end
 
 %% Saving Results
 
+% Loading mode is true as we using the Loader function.
 LoadingMode = true;
 cd(LOC_init);
+% The output data is mainly useful for NanoDataCreater but not for this.
 [~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList);
 
 
@@ -60,17 +64,20 @@ end
 
     
 %% Functions
+
 function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)    
     % This allows to get the file name and location information for
-    % multiple files, starting from the load location.
-    
+    % multiple files.
     [file,path] = uigetfile('*.mat','Select nanoindentation "mat" files made by "NanoDataCreater" to plot (must all be in one folder):','MultiSelect','on');
 
+    % If no file is selected then the output of the above is an empty
+    % double.
     if isa(file,'double') == true
         errordlg('No files selected! Code will terminate!')
         return
     end
     
+    % The loading path is specified by where the files are loaded from.
     LOC_load = path;
     
     % If one file is chosen its file type will be char and not cell, hence
@@ -98,7 +105,6 @@ function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)
         filename = fullfile(path,file{i});
         fileNameList(i,1) = file{i};
         fileNameList(i,2) = filename;
-        %FileStuctures(i) = load(filename,'-mat');
         FileStucturesProto = load(filename,'-mat');
         FileStuctures{i} = FileStucturesProto.dataToSave;
         if debugON == true
@@ -107,7 +113,7 @@ function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)
     end
 end
 
-
+% This function is pretty self-explanatory
 function [FormatAnswer] = FormattingChoosing(dlg_title,DefaultDlg)
     % This is how the data will be shown on the graph.
     FormatAnswer = questdlg('How do you want to present the data?',dlg_title,'Line + Error Region','Line + Error Bars','Line',DefaultDlg.FormatAnswer);
