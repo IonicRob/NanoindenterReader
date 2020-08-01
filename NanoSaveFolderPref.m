@@ -12,10 +12,10 @@ function [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init)
         % Selects a new folder
         LOC_save = uigetdir(LOC_init,'Select the folder for save the data in');
         fprintf('Saving in new folder...\n..."%s"\n',LOC_save);
-    elseif strcmp(SavingLocYN,'yes + same folder')
+    elseif strcmp(SavingLocYN,'yes + same folder as code')
         % By same folder it means the loading location.
         LOC_save = LOC_init;
-        fprintf('Saving in same folder as loading location...\n..."%s"\n',LOC_save);
+        fprintf('Saving in same folder as the code...\n..."%s"\n',LOC_save);
     else
         % This should happen if "do not save data" was chosen
         LOC_save = LOC_init;
