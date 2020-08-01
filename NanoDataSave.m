@@ -1,29 +1,37 @@
 %% Saving Results
 
 
-function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,LOC_load,dlg_title,fileNameList)
-    fprintf('NanoDataSave: Started!\n');
+function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName)
+    dlg_title = 'NanoDataSave';
+    fprintf('%s: Started!\n',dlg_title);
 
+    % Opens up a function asking how the user wants to save the data if at
+    % all.
     quest = {'Save the figures and file names?:'};
-    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_load,LOC_init);
+    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
 
     if ~strcmp(SavingLocYN,'do not save data')
         cd(LOC_save);
         
-        DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
-
+        % If running in Create mode OR DataIDName = nan, then it will ask
+        % for you to input DataIDName, otherwise it will do nothing to it.
+        if LoadingMode == false || isempty(DataIDName) == true
+            DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
+        else
+            fprintf('Pre-existing DataIDName made, called "%s"\n',DataIDName);
+        end
+        
         quest = {'Choose how to save the data?:'};
         pbnts = {'Auto','Semi-auto','Manual'};
         [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
 
         SaveTime = datestr(datetime('now'),'yyyy-mm-dd-HH-MM');
         figHandles = findobj('Type', 'figure');
-
-        % To keep track of what files where used, this is automatically named
-        % for easy back tracking!
-        FileImportedListName = sprintf('Filenames_%s_%s.mat',DataIDName,SaveTime);
         
         if LoadingMode == true && strcmp(SavingData,'manual') == false
+            % To keep track of what files where used, this is automatically named
+            % for easy back tracking!
+            FileImportedListName = sprintf('Filenames_%s_%s.mat',DataIDName,SaveTime);
             save(FileImportedListName,'fileNameList','-mat');
         end
 
@@ -40,7 +48,7 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
         end
     else
         disp('You have chosen not to save data!');
-        DataIDName = nan;
+        DataIDName = '';
         SaveTime = nan;
         SavingData = nan;
         LOC_save = nan;
@@ -48,8 +56,10 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
 
 
     cd(LOC_init);
-    fprintf('NanoDataSave: Complete!\n\n');
+    fprintf('%s: Completed!\n\n',dlg_title);
 end
+
+%% Functions
 
 function cycleAndSaveFiguresFunc(DataIDName,figHandles,ImageFormatType,SaveTime,SavingData,dlg_title)
     NumOfFigures = length(figHandles);
@@ -73,16 +83,3 @@ function cycleAndSaveFiguresFunc(DataIDName,figHandles,ImageFormatType,SaveTime,
     end
     commandwindow
 end
-
-% function SaveData(ValueData,ErrorData,SampleNameList,DataIDName,SaveTime,SavingData)
-%     dataToSave = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',SampleNameList,'DataIDName',DataIDName);
-%     DataSaveName = sprintf('%s_%s_Data.mat',DataIDName,SaveTime);
-%         switch SavingData
-%             case 'auto'
-%                 save(DataSaveName,'dataToSave','-mat');
-%                 fprintf('Auto-saved "%s"...\n',DataIDName);
-%             case 'semi-auto'
-%                 uisave('dataToSave',DataSaveName);
-%                 fprintf('Semi-auto-saved "%s"...\n',DataIDName);
-%         end
-% end

@@ -1,6 +1,6 @@
 %% NanoSaveFolderPref
 
-function [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_load,LOC_init)
+function [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init)
     title = 'NanoSaveFolderPref';
     % This next bit checks to see if 'SettingsDone' exists, if not then the
     % code hasn't been run before and so not previous settings exist.
@@ -12,13 +12,13 @@ function [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_load,LOC_init)
         % Selects a new folder
         LOC_save = uigetdir(LOC_init,'Select the folder for save the data in');
         fprintf('Saving in new folder...\n..."%s"\n',LOC_save);
-    elseif strcmp(SavingLocYN,'yes + same folder')
+    elseif strcmp(SavingLocYN,'yes + same folder as code')
         % By same folder it means the loading location.
-        LOC_save = LOC_load;
-        fprintf('Saving in same folder as loading location...\n..."%s"\n',LOC_save);
+        LOC_save = LOC_init;
+        fprintf('Saving in same folder as the code...\n..."%s"\n',LOC_save);
     else
         % This should happen if "do not save data" was chosen
-        LOC_save = LOC_load;
-        fprintf('Not saving data!! But, LOC_save set to LOC_load \n');
+        LOC_save = LOC_init;
+        fprintf('Not saving data!!\n');
     end
 end

@@ -1,14 +1,26 @@
 %% NanoPlotter
 % By Robert J Scales
+%
+% DataTypeList,PlotDataTypes,figHandles are needed by NanoMeaner
 
-function NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer,figHandles,PlottingInfo)
+function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer)
     fprintf('NanoPlotter: Started!\n');
 
+    DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
+    PlotDataTypes = ChooseDataToPlot(DataTypeList);
+    
+    % Below here it works in a similar way to NanoData Loader
+    figure('Name','LFigure','windowstate','maximized');
+    figure('Name','tFigure','windowstate','maximized');
+    figure('Name','HCSFigure','windowstate','maximized');
+    figure('Name','EFigure','windowstate','maximized');
+    figure('Name','HFigure','windowstate','maximized');
+
+    figHandles = findobj('Type', 'figure');
     NumberOfFiles = length(FileStuctures);
-    Y_Axis_Labels = PlottingInfo.DataTypeList; % y-axis labels
-    X_Axis_Label = PlottingInfo.X_Axis_Label; % x-axis label
-    PlotDataTypes = PlottingInfo.PlotDataTypes;
-    legendLocation = PlottingInfo.legendLocation;
+    Y_Axis_Labels = DataTypeList; % y-axis labels
+    X_Axis_Label = 'Indent Depth (nm)'; % x-axis label
+    legendLocation = 'southeast';
 % 
     for FileNum = 1:NumberOfFiles
 
@@ -59,6 +71,11 @@ function NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer,figHandles,Plotti
 end
 
 %% Functions
+
+function PlotDataTypes = ChooseDataToPlot(DataTypeList)
+    PromptString = {'Select what data to plot against depth:','Multiple can be selected at once.'};
+    [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
+end
 
 function Color = LinePlotting(currValueData,PlotDataTypes,figHandles,LegendName,linewidth)
     NumberOfPlots = length(PlotDataTypes);
@@ -118,3 +135,5 @@ function figureFormatting(PlotDataTypes,figHandles,DataTypeList,X_Axis_Label,leg
         legend('location',legendLocation);
     end
 end
+
+
