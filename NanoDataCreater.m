@@ -80,6 +80,8 @@ switch SettingsViaDialogueYN
         disp('Using previously used settings!');
 end
 
+w = wGenerator(StdDevWeightingMode);
+
 if debugON
     fprintf('SettingsDone = %s\n',string(SettingsDone));
 end
@@ -96,44 +98,16 @@ switch MeanSamples
 %         BinPopulations = zeros(bins,NumberOfSamples);
 
         for i=1:NumberOfSamples
-            FunctionOutPut = NanoMachineImport(bins,StdDevWeightingMode,debugON);
-%             FunctionOutPut = NanoImporter(filename,IDName,bins,StdDevWeightingMode,LOC_load,debugON);
-            %
-            [ValueData,ErrorData,~] = NonMeanDataGenerator(i,ValueData,ErrorData,FunctionOutPut,ErrorPlotMode);
+            [FunctionOutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,debugON);
+            [ValueData,ErrorData] = NonMeanDataGenerator(i,ValueData,ErrorData,FunctionOutPut,ErrorPlotMode);
+            fileNameList(i,:) = [IDName,filename];
         end
+        SampleNameList = fileNameList(:,1);
     case 'Yes'
         disp('Meaning samples!');
-        % The prepares arrays for the data to be filled in with.
-        PreValueData = zeros(bins,5,1);
-        IndentDepthLimits = nan(NumberOfSamples,1);
-
-        for i=1:NumberOfSamples
-            filename = fileNameList(i,2);
-            cd(LOC_init);
-            IDName = fileNameList(i,1);
-            FunctionOutPut = NanoImporter(filename,IDName,bins,StdDevWeightingMode,LOC_load,debugON);
-            IndentDepthLimits(i) = FunctionOutPut.DepthLimit;
-            PreValueData = cat(3,PreValueData,FunctionOutPut.IndentsArray);
-        end
-        PreValueData(:,:,1) = [];
-        NumOfIndents = size(PreValueData,3);
-        
-        if all(IndentDepthLimits(:) == IndentDepthLimits(1))
-            w = wGenerator(StdDevWeightingMode);
-            ValueData = horzcat(FunctionOutPut.BinMidpoints,mean(PreValueData,3,'omitnan'));
-            % This calculates the standard error using the above weighting choice.
-            ErrorData_StdDev = std(PreValueData,w,3,'omitnan');
-            % This is the standard error.
-            ErrorData_StdError = ErrorData_StdDev/realsqrt(NumOfIndents);
-            if strcmp(ErrorPlotMode,'Standard error') == true
-                ErrorData = horzcat(FunctionOutPut.BinMidpoints,ErrorData_StdError);
-            elseif strcmp(ErrorPlotMode,'Standard deviation') == true
-                ErrorData = horzcat(FunctionOutPut.BinMidpoints,ErrorData_StdDev);
-            end
-        else
-            errordlg('Indent termination depths are not the same!')
-            return
-        end
+        [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode);
+        message = 'Type in the name of the meaned data (e.g. the material name):';
+        SampleNameList = string(inputdlg(message,dlg_title,[1,50]));
 end
 
 
@@ -141,13 +115,6 @@ end
 cd(LOC_init);
 
 close all
-
-if strcmp(MeanSamples,'No') == true
-    SampleNameList = fileNameList(:,1);
-else
-    message = 'Type in the name of the meaned data (e.g. the material name):';
-    SampleNameList = string(inputdlg(message,dlg_title,[1,50]));
-end
 
 DataIDName = 'PlaceHolder-DataIDName';
 FileStuctures{1} = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',SampleNameList,'DataIDName',DataIDName);
@@ -219,6 +186,21 @@ end
     
 %% Functions
 
+function w = wGenerator(StdDevWeightingMode)
+
+    switch StdDevWeightingMode
+        case 'N-1'
+            w = 0;
+        case 'N'
+            w = 1;
+        case 'Using bin errors'
+            w = 0; % Need to update this!!
+        case ''
+            w = 0;
+    end
+    
+end
+
 function [bins,FormatAnswer,StdDevWeightingMode,ErrorPlotMode] = FormattingChoosing(DefaultDlg)
     dlg_title = 'Nanoindentation Data Creater';
     % This is the number of bins which it will group the data along the
@@ -262,9 +244,9 @@ function [bins,FormatAnswer,StdDevWeightingMode,ErrorPlotMode] = FormattingChoos
     end
 end
 
-function [ValueData,ErrorData,BinPopulations] = NonMeanDataGenerator(i,ValueData,ErrorData,BinPopulations,FunctionOutPut,ErrorPlotMode)
+function [ValueData,ErrorData] = NonMeanDataGenerator(i,ValueData,ErrorData,FunctionOutPut,ErrorPlotMode)
     ValueData(:,:,i) = FunctionOutPut.FinalArray;
-    BinPopulations(:,i) = FunctionOutPut.BinsPop;
+%     BinPopulations(:,i) = FunctionOutPut.BinsPop;
     switch ErrorPlotMode
         case 'Standard error'
             ErrorData(:,:,i) = FunctionOutPut.FinalErrors;
@@ -275,21 +257,39 @@ function [ValueData,ErrorData,BinPopulations] = NonMeanDataGenerator(i,ValueData
     end
 end
 
+function [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode)
+    % The prepares arrays for the data to be filled in with.
+    PreValueData = zeros(bins,5,1);
+    IndentDepthLimits = nan(NumberOfSamples,1);
 
-function w = wGenerator(StdDevWeightingMode)
-
-    switch StdDevWeightingMode
-        case 'N-1'
-            w = 0;
-        case 'N'
-            w = 1;
-        case 'Using bin errors'
-            w = 0; % Need to update this!!
-        case ''
-            w = 0;
+    for i=1:NumberOfSamples
+        [FunctionOutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,debugON);
+        IndentDepthLimits(i) = FunctionOutPut.DepthLimit;
+        PreValueData = cat(3,PreValueData,FunctionOutPut.IndentsArray);
+        fileNameList(i,:) = [IDName,filename];
     end
-    
+    % Removes the first layer of zeros
+    PreValueData(:,:,1) = [];
+    NumOfIndents = size(PreValueData,3);
+
+    if all(IndentDepthLimits(:) == IndentDepthLimits(1))
+        ValueData = horzcat(FunctionOutPut.BinMidpoints,mean(PreValueData,3,'omitnan'));
+        % This calculates the standard error using the above weighting choice.
+        ErrorData_StdDev = std(PreValueData,w,3,'omitnan');
+        % This is the standard error.
+        ErrorData_StdError = ErrorData_StdDev/realsqrt(NumOfIndents);
+        if strcmp(ErrorPlotMode,'Standard error') == true
+            ErrorData = horzcat(FunctionOutPut.BinMidpoints,ErrorData_StdError);
+        elseif strcmp(ErrorPlotMode,'Standard deviation') == true
+            ErrorData = horzcat(FunctionOutPut.BinMidpoints,ErrorData_StdDev);
+        end
+    else
+        errordlg('Indent termination depths are not the same!')
+        return
+    end
+
 end
+
 
 function PlotDataTypes = ChooseDataToPlot(DataTypeList)
     PromptString = {'Select what data to plot against depth:','Multiple can be selected at once.'};

@@ -62,7 +62,7 @@ function NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_load
     end
     
     quest = {'Save the range mean table data?:'};
-    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_load,LOC_init);
+    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
     if ~strcmp(SavingLocYN,'do not save data')
         cd(LOC_save);
         fprintf('Range mean table will be auto-saved...\n');

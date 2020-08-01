@@ -79,7 +79,7 @@ NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_load,LOC_init
 
 LoadingMode = true;
 cd(LOC_init);
-[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,LOC_load,dlg_title,fileNameList);
+[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,dlg_title,fileNameList);
 
 
 fprintf('NanoDataLoader: Complete!\n\n');

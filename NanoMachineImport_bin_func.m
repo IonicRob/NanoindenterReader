@@ -3,6 +3,13 @@
 function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
 %%
 
+    if ~ismatrix(Table_Current(:,1)) || ~ismatrix(bin_boundaries)
+        errordlg('Table_Current and/or bin_boundaries is not a matrix!');
+        disp(Table_Current(:,1));
+        disp(bin_boundaries);
+        return
+    end
+
     % This bins the indent head displacement and counts how many in
     % each bin along with what bin each row belongs to.
     [N,~,binIndex] = histcounts(Table_Current(:,1),bin_boundaries);

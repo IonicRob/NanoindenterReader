@@ -10,7 +10,7 @@
 % each of these bin ranges and find the mean average value. It will then
 % find the average bin value for of all of the indents for each bin.
 
-function OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON)
+function [OutPut,IDName,filename] = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON)
     %% Testing Section
     % Set 'testON' to true to allow for testing of this code itself.
     
@@ -115,7 +115,7 @@ function OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON
 
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
-        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         
         indProTime(currIndNum,1) = toc;
     end

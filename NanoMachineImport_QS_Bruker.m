@@ -5,7 +5,7 @@
 % the loading up path, and not the unloading stage; as this give me a
 % headache trying to sort it out for both directions).
 
-function OutPut = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON)
+function [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON)
 %% Testing Initialisation
 
 testON = false;
@@ -30,7 +30,7 @@ end
         return
     end
     
-    [w,ProgressBar,waitTime,IDName] = NanoMachineImport_first_stage(title,StdDevWeightingMode,file);
+    [w,ProgressBar,waitTime,IDName] = NanoMachineImport_first_stage(title,StdDevWeightingMode,file{1});
     
     LOC_load = path;
     
@@ -124,6 +124,12 @@ end
     % information from the indent text files imported.
     OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime);
     close(ProgressBar);
+    
+    % Sets filename to the last indent loaded. Just to identify what was
+    % generally loaded to produce this data. The IDName should be a better
+    % identifier though in purpose.
+    filename = IndentFilename;
+    
     fprintf('%s: Complete!\n',title);
 end
 

@@ -8,7 +8,7 @@
 
 % Quasistandard trapezoid method
 
-function OutPut = NanoMachineImport(bins,StdDevWeightingMode,debugON)
+function [OutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,debugON)
     
     title = 'NanoMachineImport';
 
@@ -34,9 +34,9 @@ function OutPut = NanoMachineImport(bins,StdDevWeightingMode,debugON)
     
     switch ChosenMethod
         case 'CSM Agilent'
-            OutPut = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON);
+            [OutPut,IDName,filename] = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON);
         case 'QS Bruker'
-            OutPut = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON);
+            [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON);
     end
     
 end
