@@ -43,7 +43,8 @@ fileNameList = strings(NumberOfSamples,2);
 %% Settings
 
 if NumberOfSamples>1
-    MeanSamples = questdlg('Do you want to take the mean over all of the indents in all of the selected files?',dlg_title,'Yes','No',DefaultDlg.MeanSamples);
+    Message = {'Do you want to take the mean over all of the indents in all of the selected files?';'"Yes" only works with Agilent data!'};
+    MeanSamples = questdlg(Message,dlg_title,'Yes','No',DefaultDlg.MeanSamples);
 else
     MeanSamples = 'No';
 end
@@ -102,8 +103,8 @@ switch MeanSamples
         end
         SampleNameList = fileNameList(:,1);
     case 'Yes'
-        disp('Meaning samples!');
-        [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON);
+        disp('Meaning samples for Agilent data!');
+        [ValueData,ErrorData,fileNameList] = AgilentMeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON);
         message = 'Type in the name of the meaned data (e.g. the material name):';
         SampleNameList = string(inputdlg(message,dlg_title,[1,50]));
 end
@@ -255,7 +256,7 @@ function [ValueData,ErrorData] = NonMeanDataGenerator(i,ValueData,ErrorData,Func
     end
 end
 
-function [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON)
+function [ValueData,ErrorData,fileNameList] = AgilentMeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON)
     % The prepares arrays for the data to be filled in with.
     PreValueData = zeros(bins,5,1);
     IndentDepthLimits = nan(NumberOfSamples,1);
@@ -283,6 +284,9 @@ function [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSam
         end
     else
         errordlg('Indent termination depths are not the same!')
+        ValueData = nan;
+        ErrorData = nan;
+        fileNameList = nan;
         return
     end
 
