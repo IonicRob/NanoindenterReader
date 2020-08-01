@@ -3,7 +3,7 @@
 function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
 %%
 
-    if ~ismatrix(Table_Current(:,1)) || ~ismatrix(bin_boundaries)
+    if ~isvector(Table_Current(:,1)) || ~isvector(bin_boundaries)
         errordlg('Table_Current and/or bin_boundaries is not a matrix!');
         disp(Table_Current(:,1));
         disp(bin_boundaries);
