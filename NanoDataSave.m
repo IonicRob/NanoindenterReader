@@ -1,30 +1,37 @@
 %% Saving Results
 
 
-function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList)
+function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName)
     dlg_title = 'NanoDataSave';
     fprintf('%s: Started!\n',NanoDataSave);
 
+    % Opens up a function asking how the user wants to save the data if at
+    % all.
     quest = {'Save the figures and file names?:'};
     [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
 
     if ~strcmp(SavingLocYN,'do not save data')
         cd(LOC_save);
         
-        DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
-
+        % If running in Create mode OR DataIDName = nan, then it will ask
+        % for you to input DataIDName, otherwise it will do nothing to it.
+        if LoadingMode == false || isnan(DataIDName) == true
+            DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
+        else
+            fprintf('Pre-existing DataIDName made, called "%s"\n',DataIDName);
+        end
+        
         quest = {'Choose how to save the data?:'};
         pbnts = {'Auto','Semi-auto','Manual'};
         [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
 
         SaveTime = datestr(datetime('now'),'yyyy-mm-dd-HH-MM');
         figHandles = findobj('Type', 'figure');
-
-        % To keep track of what files where used, this is automatically named
-        % for easy back tracking!
-        FileImportedListName = sprintf('Filenames_%s_%s.mat',DataIDName,SaveTime);
         
         if LoadingMode == true && strcmp(SavingData,'manual') == false
+            % To keep track of what files where used, this is automatically named
+            % for easy back tracking!
+            FileImportedListName = sprintf('Filenames_%s_%s.mat',DataIDName,SaveTime);
             save(FileImportedListName,'fileNameList','-mat');
         end
 
@@ -49,7 +56,7 @@ function [DataIDName,SaveTime,SavingData,LOC_save] = NanoDataSave(ImageFormatTyp
 
 
     cd(LOC_init);
-    fprintf('NanoDataSave: Complete!\n\n');
+    fprintf('%s: Completed!\n\n',NanoDataSave);
 end
 
 %% Functions

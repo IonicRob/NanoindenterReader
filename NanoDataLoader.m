@@ -34,9 +34,12 @@ ToMeanOrNotToMean = questdlg('Find a mean value within a range?',dlg_title,'Yes'
 switch ToMeanOrNotToMean
     case 'Yes'
         % This is the function that does all of the work.
-        NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON);
+        DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON);
     otherwise
         disp('You have decided not to find the mean value within a range...');
+        % Setting DataIDName to nan will then make NanoDataSave ask for
+        % DataIDName when it runs.
+        DataIDName = nan;
 end
 
 %% Saving Results
@@ -45,7 +48,7 @@ end
 LoadingMode = true;
 cd(LOC_init);
 % The output data is mainly useful for NanoDataCreater but not for this.
-[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList);
+[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName);
 
 
 fprintf('NanoDataLoader: Complete!\n\n');

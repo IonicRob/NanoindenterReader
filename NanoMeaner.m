@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON)
+function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON)
     title = 'NanoMeaner';
     fprintf('%s: Started!\n',title);        
     
@@ -118,6 +118,9 @@ function NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init
         fprintf('Auto-saved range mean tables!\n');
     else
         disp('You have chosen not to save the range mean table!');
+        % Setting DataIDName to nan will then make NanoDataSave ask for
+        % DataIDName when it runs.
+        DataIDName = nan;
     end
     
 
