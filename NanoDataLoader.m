@@ -2,29 +2,14 @@
 % Written by Robert J Scales
 
 function NanoDataLoader(debugON,PlotAesthetics,DefaultDlg,ImageFormatType)
-%Clear the command window
-clc ; close all
-fprintf('NanoDataLoader: Started!\n\n');
+%% Set-up
+% The comments for what the below does can be found pretty much in
+% NanoDataCreater!
 
-
-%% Pre-defined User Settings
-
-dlg_title = 'Nanoindentation Data Loader';
-
-% This is a list of all of the variables we have defined up here, used so
-% that they won't be deleted when clearvars is used later.
-InitialSettingsList = {'dlg_title','debugON','PlotAesthetics','DefaultDlg','USS','ImageFormatType'};
-
-%% Initialisation
-
-% This question dialogue box changes the course whether to select new files
-% or to keep the ones previously selected if the code has been ran before.
-InitialSettingsList2 = {'FormatAnswer'};
-InitialSettingsList = horzcat(InitialSettingsList,InitialSettingsList2);
-
-clearvars('-except',InitialSettingsList{:});
-% uisetpref('clearall');
-
+clc;
+dlg_title = 'NanoindentationDataLoader';
+fprintf('%s: Started!\n\n',dlg_title);
+NanoCreaterLoaderClearer(false,false);
 LOC_init = cd;
 
 [FileStuctures,fileNameList,~] = LoadingFilesFunc(debugON);

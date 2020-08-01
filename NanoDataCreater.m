@@ -1,33 +1,17 @@
 %% Nanoindentation Data Creater
 % Written by Robert J Scales
-%
-% To run this code just by itself, run the "NanoMainCode Settings" in
-% NanoMainCode and then run this code in its entirety.
 
 function NanoDataCreater(debugON,PlotAesthetics,DefaultDlg,USS,ImageFormatType)
-%Clear the command window
-clc ; close all
-fprintf('NanoDataCreater: Started!\n\n');
+%% Set-up
+clc;
 
+% This is the title for notifications.
+dlg_title = 'NanoindentationDataCreater';
+fprintf('%s: Started!\n\n',dlg_title);
 
-%% Pre-defined User Settings
-
-dlg_title = 'Nanoindentation Data Creater';
-
-% This is a list of all of the variables we have defined up here, used so
-% that they won't be deleted when clearvars is used later.
-InitialSettingsList = {'dlg_title','debugON','PlotAesthetics','DefaultDlg','USS','ImageFormatType'};
-
-%% Initialisation
-
-% Clears all of the unneeded variables
-InitialSettingsList2 = {'ImportNewYS','SettingsDone','bins','FormatAnswer','StdDevWeightingMode','ErrorPlotMode'};
-InitialSettingsList = horzcat(InitialSettingsList,InitialSettingsList2);
-clearvars('-except',InitialSettingsList{:});
-
-% The below clears all of the 'Do Not Show This Again' for
-% preference diaglogue boxes.
-%     uisetpref('clearall');
+% The below gives the option to clear white list the clearing of certain
+% variables and/or clear all preferences.
+NanoCreaterLoaderClearer(false,false);
 
 % This saves the initial directory, i.e. where the script is stored
 % in.

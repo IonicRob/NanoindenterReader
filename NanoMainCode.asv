@@ -111,9 +111,7 @@ function ImageFormatType = changeFigureSaveType
         % what it saves the figures as.
         [ImageSavingRepYN,~] = uigetpref('Settings','ImageSaving',code_title,quest,{'Yes','No'},'DefaultButton','No');
         
-        % If the user selects yes then it gives them the option to choose
-        % what to save the figures as, otherwise it will use the
-        % pre-existing variable value.
+        % If the user sel
         if strcmp(ImageSavingRepYN,'yes')
             ImageFormatType = ImageSaveType;
         elseif strcmp(ImageSavingRepYN,'no')
@@ -122,16 +120,11 @@ function ImageFormatType = changeFigureSaveType
     end
 end
 
-% This is used in changeFigureSaveType.
+% This is used in changeFigureSaveType
 function ImageFormatType = ImageSaveType
     PromptString = {'Select image filetype for figures to save as:','Only one type can be selected at a time.'};
     imageTypeList = {'fig','m','tiffn','tiff','jpeg','png','pdf','svg','eps'};
-    
-    % List dialogue pop-up.
     [ImageFormatType,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',imageTypeList);
-    
-    % This changes ImageFormatType from being a number to the character
-    % value in imageTypeList.
     ImageFormatType = imageTypeList{ImageFormatType};
 end
 
