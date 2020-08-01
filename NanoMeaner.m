@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_load,LOC_init)
+function NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init)
     fprintf('NanoMeaner: Started!\n');
     
     NanoMeanerdDebugON = false;
