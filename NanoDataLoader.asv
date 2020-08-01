@@ -19,15 +19,24 @@ InitialSettingsList = {'dlg_title','debugON','PlotAesthetics','DefaultDlg','USS'
 
 % This question dialogue box changes the course whether to select new files
 % or to keep the ones previously selected if the code has been ran before.
-InitialSettingsList2 = {'FormatAnswer'};
-InitialSettingsList = horzcat(InitialSettingsList,InitialSettingsList2);
-
-clearvars('-except',InitialSettingsList{:});
-% uisetpref('clearall');
-
-LOC_init = cd;
-
-[FileStuctures,fileNameList,~] = LoadingFilesFunc(debugON);
+LoadNewYS = questdlg('Do you need to load new data?','Nanoindentation Data Loader','Yes','No','Yes');
+switch LoadNewYS
+    case 'Yes'
+        InitialSettingsList2 = {'LoadNewYS','SettingsDone','FormatAnswer'};
+        InitialSettingsList = horzcat(InitialSettingsList,InitialSettingsList2);
+        clearvars('-except',InitialSettingsList{:});
+        
+%         uisetpref('clearall');
+        
+        LOC_init = cd;
+        
+        [FileStuctures,fileNameList,LOC_load] = YesModeLoading(debugON);
+    case 'No'
+        disp('Using the same data as before!')
+    case ''
+        errordlg('Exit button was pressed! Code will terminate!')
+        return
+end
 
 %% Settings
 
@@ -38,11 +47,12 @@ cd(LOC_init);
 
 close all
 
-figure('Name','LFigure','windowstate','maximized');
-figure('Name','tFigure','windowstate','maximized');
-figure('Name','HCSFigure','windowstate','maximized');
-figure('Name','EFigure','windowstate','maximized');
-figure('Name','HFigure','windowstate','maximized');
+
+L_fig = figure('Name','LFigure','windowstate','maximized');
+t_fig = figure('Name','tFigure','windowstate','maximized');
+HCS_fig = figure('Name','HCSFigure','windowstate','maximized');
+E_fig = figure('Name','EFigure','windowstate','maximized');
+H_fig = figure('Name','HFigure','windowstate','maximized');
 
 DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
 PlotDataTypes = ChooseDataToPlot(DataTypeList);
@@ -93,7 +103,7 @@ end
 
     
 %% Functions
-function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)
+function [FileStuctures,fileNameList,LOC_load] = YesModeLoading(debugON)
     % Change current directory to the directory to load the data from.
     
     % This allows to get the file name and location information for
@@ -136,6 +146,7 @@ function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)
         %FileStuctures(i) = load(filename,'-mat');
         FileStucturesProto = load(filename,'-mat');
         FileStuctures{i} = FileStucturesProto.dataToSave;
+        clear('FileStucturesProto','i','filename');
         if debugON == true
             fprintf('Loaded file named "%s"\n',file{i});
         end

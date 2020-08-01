@@ -33,11 +33,6 @@ clearvars('-except',InitialSettingsList{:});
 % in.
 LOC_init = cd;
 
-% The below selects the files to be imported and names each of
-% them. NEED TO UPDATE THE FUNCTION TO BE MORE INCLUSIVE OF OTHER
-% METHODS.
-% [fileNameList,NumberOfSamples,LOC_load] = YesModeInitialisation;
-
 prompt = 'Type in the number of samples to load';
 NumberOfSamples = str2double(inputdlg(prompt,dlg_title));
 
@@ -75,7 +70,6 @@ switch SettingsViaDialogueYN
         StdDevWeightingMode = USS.StdDevWeightingMode;
         ErrorPlotMode = USS.ErrorPlotMode;
         SettingsDone = true; % This is used!
-
     case 'Use Previously Used Settings'
         disp('Using previously used settings!');
 end
@@ -83,6 +77,10 @@ end
 w = wGenerator(StdDevWeightingMode);
 
 if debugON
+    fprintf('bins = %s\n',string(bins));
+    fprintf('FormatAnswer = %s\n',string(FormatAnswer));
+    fprintf('StdDevWeightingMode = %s\n',string(StdDevWeightingMode));
+    fprintf('ErrorPlotMode = %s\n',string(ErrorPlotMode));
     fprintf('SettingsDone = %s\n',string(SettingsDone));
 end
 
@@ -105,7 +103,7 @@ switch MeanSamples
         SampleNameList = fileNameList(:,1);
     case 'Yes'
         disp('Meaning samples!');
-        [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode);
+        [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON);
         message = 'Type in the name of the meaned data (e.g. the material name):';
         SampleNameList = string(inputdlg(message,dlg_title,[1,50]));
 end
@@ -257,7 +255,7 @@ function [ValueData,ErrorData] = NonMeanDataGenerator(i,ValueData,ErrorData,Func
     end
 end
 
-function [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode)
+function [ValueData,ErrorData,fileNameList] = MeanDataGenerator(bins,NumberOfSamples,fileNameList,w,ErrorPlotMode,StdDevWeightingMode,debugON)
     % The prepares arrays for the data to be filled in with.
     PreValueData = zeros(bins,5,1);
     IndentDepthLimits = nan(NumberOfSamples,1);

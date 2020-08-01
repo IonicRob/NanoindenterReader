@@ -50,7 +50,7 @@ function [PlotAesthetics,debugON,DefaultDlg,USS] = SettingsFunction
     set(0,'defaultAxesFontSize',20); % This sets the font size for all text in all of the figures!
     set(0,'defaultLineMarkerSize',12); % This sets the marker size for all text in all of the figures!
 
-    debugON = false;
+    debugON = true;
     
     % The below are non-crucial settings which have been decided to not be
     % editable via dialogue boxes when running the script.
