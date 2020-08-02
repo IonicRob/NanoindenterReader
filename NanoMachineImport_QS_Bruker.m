@@ -4,6 +4,8 @@
 % Currently this code only takes bins up to the maximum indent depth (i.e.
 % the loading up path, and not the unloading stage; as this give me a
 % headache trying to sort it out for both directions).
+%
+% Attempting to make it do loading and unloading
 
 function [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON)
 %% Testing Initialisation
