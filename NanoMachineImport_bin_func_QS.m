@@ -1,6 +1,9 @@
 %% NanoMachineImport_bin_func
+%
+% This differs from the similar function as this does not update the
+% penultimate array but gets the 2D part for just that current indent.
 
-function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
+function [OutPut2DArray,OutPut2DErrors,N] = NanoMachineImport_bin_func_QS(w,Table_Current,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
 %%
 
     % If the input indent depth but and the bin boundaries are not vectors
@@ -19,6 +22,9 @@ function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,T
 %     disp('N =');
 %     disp(N);
 
+    OutPut2DArray = TemplateArray;
+    OutPut2DErrors = TemplateErrors;
+
     % This will cycle through each of the bins
     for BinNum=1:bins
         % This finds the displacment data which are within the bin
@@ -34,8 +40,8 @@ function [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,T
 %         fprintf('Bin_Data = %g',Bin_Data);
 
         % This adds the data into the 3D array.
-        PenultimateArray(BinNum,:,currIndNum) = Bin_Data;
-        PenultimateErrors(BinNum,:,currIndNum) = Bin_Error;
+        OutPut2DArray(BinNum,:) = Bin_Data;
+        OutPut2DErrors(BinNum,:) = Bin_Error;
         message = sprintf('%s - Indent %d/%d - Bin %d/%d\nTime Left ~ %.3g secs',IDName,currIndNum,NumOfIndents,BinNum,bins,RemainingTime);
         waitbar((currIndNum-1)/NumOfIndents,ProgressBar,message);
     end

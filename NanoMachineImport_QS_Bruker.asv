@@ -13,9 +13,6 @@ function [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeigh
 testON = true;
 
 if testON == true
-    clear
-    close all
-    clc
     bins = 100;
     debugON = true;
     StdDevWeightingMode = 'N-1';
@@ -133,15 +130,11 @@ end
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
         [D2Array_loading,D2Errors_loading,N_loading] = NanoMachineImport_bin_func_QS(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
-        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [D_unloading,PenultimateErrors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
 
-        D2Array_unloading = flipud(D2Array_unloading);
-        D2Errors_unloading = flipud(D2Errors_unloading);
-        
-        PenultimateArray(:,:,currIndNum) = vertcat(D2Array_loading,D2Array_unloading);
-        PenultimateErrors(:,:,currIndNum) = vertcat(D2Errors_loading,D2Errors_unloading);
+        PenultimateArray(:,:,currIndNum) = vertcat(D2Array_loading,PenultimateArray_unloading);
+        PenultimateErrors(:,:,currIndNum) = vertcat(D2Errors_loading,PenultimateErrors_unloading);
         N = horzcat(N_loading,N_unloading);
-        clear D2Array_loading D2Array_unloading D2Errors_loading D2Errors_unloading N_loading N_unloading
         
         indProTime(currIndNum,1) = toc;
     end
