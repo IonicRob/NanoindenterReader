@@ -6,7 +6,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     fprintf('%s: Started!\n',title);        
     
     % The below bit just warns the user what is used in this function.
-    message = {'This function (NanoMeaner) uses the following settings:';'w = 0';'Error = standard deviation'};
+    message = {'This function (NanoMeaner) uses the following settings:';'w = 0';'Error = standard deviation';'For QS means loading data and not unloading?'};
     NanoMeanerMemo = helpdlg(message,title);
     waitfor(NanoMeanerMemo);
     w = 0;
