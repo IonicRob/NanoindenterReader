@@ -145,7 +145,7 @@ function NewLimitValue = NewLimit(currLimit)
 %     end
 %     addOn = abs(ticks(2)-ticks(1));
     addOn = floor(log10(currLimit))-1;
-    NewLimitValue = currLimit+(10^addOn);
+    NewLimitValue = currLimit+(10^addOn;
     disp(currLimit);
     disp(NewLimitValue);
 end
