@@ -19,7 +19,7 @@ function [OutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,d
     
     title = 'NanoMachineImport';
 
-    ValidMethodList = {'CSM Agilent','QS Bruker','Other','Help'};
+    ValidMethodList = {'CSM Agilent','QS Agilent','QS Bruker','Other','Help'};
     PromptString = {'Select the type method/system to import:','Only one type can be selected at a time.'};
     [ChosenMethod,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',ValidMethodList);
     if isempty(ChosenMethod) == false
@@ -44,6 +44,8 @@ function [OutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,d
             [OutPut,IDName,filename] = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON);
         case 'QS Bruker'
             [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON);
+        case 'QS Agilent'
+            [OutPut,IDName,filename] = NanoMachineImport_QS_Agilent(bins,StdDevWeightingMode,debugON);
     end
     
 end

@@ -1,4 +1,4 @@
-%% NanoMachineImport_CSM_Agilent
+%% NanoMachineImport_QS_Agilent
 % Written by Robert J Scales
 % This works on the Excel spreadsheets produced by the nanoindenters, which
 % shouldn't require any editing apart from deleting indents from the
@@ -10,7 +10,7 @@
 % each of these bin ranges and find the mean average value. It will then
 % find the average bin value for of all of the indents for each bin.
 
-function [OutPut,IDName,filename] = NanoMachineImport_CSM_Agilent(bins,StdDevWeightingMode,debugON)
+function [OutPut,IDName,filename] = NanoMachineImport_QS_Agilent(bins,StdDevWeightingMode,debugON)
     %% Testing Section
     % Set 'testON' to true to allow for testing of this code itself.
     
@@ -106,12 +106,12 @@ function [OutPut,IDName,filename] = NanoMachineImport_CSM_Agilent(bins,StdDevWei
         % Importing the data for the current indent
         Table_Sheet = readmatrix(filename,'Sheet',SheetNames(SheetNum),'FileType','spreadsheet','Range','B:G','NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',6);
         
-        % We look at H and E so that we can neglect data for which
-        % unusually high magnitude numbers are produced.        
-        GoodRows = (abs(Table_Sheet(:,5)) < 10^3) & (abs(Table_Sheet(:,6)) < 10^3);
+%         % We look at H and E so that we can neglect data for which
+%         % unusually high magnitude numbers are produced.        
+%         GoodRows = (abs(Table_Sheet(:,5)) < 10^3) & (abs(Table_Sheet(:,6)) < 10^3);
         
         % This selects only the data with reasonable magnitudes.
-        Table_Current = Table_Sheet(GoodRows,:);
+        Table_Current = Table_Sheet(:,:);
 
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
