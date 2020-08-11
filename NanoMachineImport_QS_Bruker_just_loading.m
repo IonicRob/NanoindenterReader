@@ -10,12 +10,9 @@
 function [OutPut,IDName,filename] = NanoMachineImport_QS_Bruker(bins,StdDevWeightingMode,debugON)
 %% Testing Initialisation
 
-testON = true;
+testON = false;
 
 if testON == true
-    clear
-    close all
-    clc
     bins = 100;
     debugON = true;
     StdDevWeightingMode = 'N-1';
@@ -81,8 +78,6 @@ end
     
     DepthLimit = MaxIndentDepth; % in nm
     bin_boundaries = transpose(linspace(0,DepthLimit,bins+1));
-    bin_width = bin_boundaries(2)-bin_boundaries(1);
-    fprintf('\tBin Width = %.2fnm...\t(to two decimal places)\n',bin_width);
 
     % This section generates the names of the bin boundaries, which will
     % pop up during debug if it can't compute a bin. The midpoints of the
@@ -93,20 +88,8 @@ end
         bin_boundaries_text(BinNum,1) = sprintf("%d:%d",bin_boundaries(BinNum),bin_boundaries(BinNum+1));
         bin_midpoints(BinNum,1) = mean([bin_boundaries(BinNum),bin_boundaries(BinNum+1)]);
     end
-    
-%     % This is done so that the loading and unloading can be done.
-    TotalNumOfRows = 2*bins;
-    % Specifically this repeats the midpoints on the loading up but flips
-    % it upside down and attaches it to the bottom.
-    bin_midpoints =  vertcat(bin_midpoints,flipud(bin_midpoints));
-    
-    % Initialise
-    PenultimateArray = zeros(TotalNumOfRows,5,NumOfIndents);
-    PenultimateErrors = zeros(TotalNumOfRows,5,NumOfIndents);
-    
-    % Template 2D matrices per indent
-    TemplateArray = zeros(bins,5);
-    TemplateErrors = zeros(bins,5);
+    PenultimateArray = zeros(bins,5,NumOfIndents);
+    PenultimateErrors = zeros(bins,5,NumOfIndents);
     
 %% Binning Main Body
     indProTime = nan(NumOfIndents,1);
@@ -125,23 +108,12 @@ end
         % This selects only the data with reasonable magnitudes.
         Table_Current = table2array(MasterTable{currIndNum});
         Table_Current = Table_Current(Table_Current(:,1)>0,:);
-        % Finds the maximum depth of the current indent
         [~,RowOfMaxDepth] = max(Table_Current(:,1));
-        Table_Current_loading = Table_Current(1:RowOfMaxDepth,:);
-        Table_Current_unloading = Table_Current(RowOfMaxDepth:end,:);
+        Table_Current = Table_Current(1:RowOfMaxDepth,:);
         
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
-        [D2Array_loading,D2Errors_loading,N_loading] = NanoMachineImport_bin_func_QS(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
-        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
-
-        D2Array_unloading = flipud(D2Array_unloading);
-        D2Errors_unloading = flipud(D2Errors_unloading);
-        
-        PenultimateArray(:,:,currIndNum) = vertcat(D2Array_loading,D2Array_unloading);
-        PenultimateErrors(:,:,currIndNum) = vertcat(D2Errors_loading,D2Errors_unloading);
-        N = horzcat(N_loading,N_unloading);
-        clear D2Array_loading D2Array_unloading D2Errors_loading D2Errors_unloading N_loading N_unloading
+        [PenultimateArray,PenultimateErrors,N] = NanoMachineImport_bin_func(w,Table_Current,bins,bin_boundaries,PenultimateArray,PenultimateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         
         indProTime(currIndNum,1) = toc;
     end

@@ -129,11 +129,23 @@ function figureFormatting(PlotDataTypes,figHandles,DataTypeList,X_Axis_Label,leg
         xlabel(X_Axis_Label);
         YLIM = ylim();
         XLIM = xlim();
-        ylim([0,YLIM(2)]);
-        xlim([0,XLIM(2)]);
+        ylim([0,NewLimit(YLIM(2))]);
+        xlim([0,NewLimit(XLIM(2))]);
         grid on;
         legend('location',legendLocation);
     end
 end
 
-
+function NewLimitValue = NewLimit(currLimit)
+%     switch XorY
+%         case 'X'
+%             ticks = xticks;
+%         case 'Y'
+%             ticks = yticks;
+%     end
+%     addOn = abs(ticks(2)-ticks(1));
+    addOn = floor(log10(currLimit))-1;
+    NewLimitValue = currLimit+(10^addOn);
+    disp(currLimit);
+    disp(NewLimitValue);
+end

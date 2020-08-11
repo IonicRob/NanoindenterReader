@@ -92,10 +92,6 @@ end
 switch MeanSamples
     case 'No'
         disp('NOT meaning samples!');
-        % The prepares arrays for the data to be filled in with.
-        ValueData = zeros(bins,6,NumberOfSamples);
-        ErrorData = zeros(bins,6,NumberOfSamples);
-%         BinPopulations = zeros(bins,NumberOfSamples);
 
         % The below cycles through by the number of samples you specified
         % in the "Basic Set-up" section of this code.
@@ -103,6 +99,16 @@ switch MeanSamples
              % Details of this function are written in its code. It
              % effectively obtains the data for the sample.
             [FunctionOutPut,IDName,filename] = NanoMachineImport(bins,StdDevWeightingMode,debugON);
+            
+            if i == 1
+                NumOfRows = size(FunctionOutPut.FinalArray,1);
+                % The prepares arrays for the data to be filled in with.
+                ValueData = zeros(NumOfRows,6,NumberOfSamples);
+                ErrorData = zeros(NumOfRows,6,NumberOfSamples);
+                % NumOfRows used to be bins but then for loading and
+                % unloading the two aren't equal (=2*bins)
+            %         BinPopulations = zeros(bins,NumberOfSamples);
+            end
             
             % This then extracts the data from the above function and
             % places it into the 3D arrays, where the 3rd dimension is for
