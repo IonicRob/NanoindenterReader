@@ -1,12 +1,15 @@
-%% NanoPlotter
+%% NanoPlotter_main
 % By Robert J Scales
 %
 % DataTypeList,PlotDataTypes,figHandles are needed by NanoMeaner
 
-function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter(FileStuctures,PlotAesthetics,FormatAnswer)
+function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(FileStuctures,PlotAesthetics,FormatAnswer)
     fprintf('NanoPlotter: Started!\n');
 
-    DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
+    % Converts from string array that is needed to save it into a
+    % cell array for further processing.
+    DataTypeList = cellstr(FileStuctures{1}.varNames);
+%     DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
     PlotDataTypes = ChooseDataToPlot(DataTypeList);
     
     % Below here it works in a similar way to NanoData Loader
@@ -18,8 +21,9 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter(FileStuctures,Plo
 
     figHandles = findobj('Type', 'figure');
     NumberOfFiles = length(FileStuctures);
-    Y_Axis_Labels = DataTypeList; % y-axis labels
-    X_Axis_Label = 'Indent Depth (nm)'; % x-axis label
+    % The first column is the indent depth column
+    Y_Axis_Labels = DataTypeList(2:end); % y-axis labels
+    X_Axis_Label = DataTypeList(1); % x-axis label
     legendLocation = 'southeast';
 % 
     for FileNum = 1:NumberOfFiles

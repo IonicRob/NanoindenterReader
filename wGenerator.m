@@ -12,7 +12,7 @@ function w = wGenerator(StdDevWeightingMode)
             w = 1;
         case 'Using bin errors'
             w = 0; % Need to update this!!
-        case ''
+        otherwise
             w = 0;
     end
     
