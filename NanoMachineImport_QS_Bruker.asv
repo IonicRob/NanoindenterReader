@@ -77,9 +77,7 @@ end
         DispVoltage = currMatrix(:,4); % Fake HCS column.
         ForceVoltage = currMatrix(:,5); % Fake HCS column.
         currMaxIndentDepth = max(Depth);
-        if debugON == true
-            fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
-        end
+        fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
         MaxIndentDepth = max([currMaxIndentDepth,MaxIndentDepth]);
         OutputTable = MakeTableForIndent(Depth,Load,Time,DispVoltage,ForceVoltage,varNames);
         MasterTable{i} = OutputTable;
@@ -116,8 +114,8 @@ end
     PenultimateErrors = zeros(TotalNumOfRows,NoYCols,NumOfIndents);
     
     % Template 2D matrices per indent
-    TemplateArray = zeros(bins,NoYCols);
-    TemplateErrors = zeros(bins,NoYCols);
+    TemplateArray = zeros(bins,);
+    TemplateErrors = zeros(bins,5);
     
 %% Binning Main Body
     indProTime = nan(NumOfIndents,1);

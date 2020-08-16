@@ -30,6 +30,12 @@ function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,
     TableSize = [size(FinalArray,1),size(FinalArray,2)+1];
     varTypes    = cell(1,TableSize(2));
     varTypes(:) = {'double'};
+    if TableSize(2) ~= length(varNames)
+        OutPut = nan;
+        DLG = errordlg(sprintf('Sizes not compatible!\nNum of table cols = %d\nNum of variable names = %d\n',TableSize(2),length(varNames)));
+        disp(varNames);
+        return
+    end
     FinalTable = table('Size',TableSize,'VariableTypes',varTypes,'VariableNames',varNames);
     FinalTable(:,1) = table(XData);
     for column = 1:TableSize(2)-1

@@ -1,0 +1,138 @@
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration file="C:\Users\rober_000\OneDrive\Documents\GitHub\NanoindenterReader\NanoReader.prj" location="C:\Users\rober_000\OneDrive\Documents\GitHub\NanoindenterReader" name="NanoReader" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>NanoReader</param.appname>
+    <param.icon />
+    <param.icons />
+    <param.version>1.0</param.version>
+    <param.authnamewatermark>Robert Scales</param.authnamewatermark>
+    <param.email>robert.scales@mansfield.ox.ac.uk</param.email>
+    <param.company />
+    <param.summary />
+    <param.description />
+    <param.screenshot />
+    <param.guid />
+    <param.installpath.string>\NanoReader\</param.installpath.string>
+    <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.target.install.notes />
+    <param.intermediate>${PROJECT_ROOT}\NanoReader\for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}\NanoReader\for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}\NanoReader\for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}\NanoReader</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.support.packages />
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>false</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.windows.command.prompt>true</param.windows.command.prompt>
+    <param.create.log>false</param.create.log>
+    <param.log.file />
+    <param.native.matlab>false</param.native.matlab>
+    <param.checkbox>false</param.checkbox>
+    <param.example />
+    <param.help.text>Syntax 
+	  -? 
+	 
+ Input Arguments 
+	 -?  print help on how to use the application 
+	 input arguments</param.help.text>
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.version />
+      <param.company />
+      <param.summary />
+      <param.description />
+      <param.screenshot />
+      <param.guid />
+      <param.installpath.string />
+      <param.installpath.combo />
+      <param.logo />
+      <param.install.notes />
+      <param.target.install.notes />
+      <param.intermediate />
+      <param.files.only />
+      <param.output />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
+      <param.target.type />
+      <param.support.packages />
+      <param.web.mcr />
+      <param.package.mcr />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.package.mcr.name />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+      <param.create.log />
+      <param.log.file />
+      <param.native.matlab />
+      <param.checkbox />
+      <param.example />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\NanoMainCode.m</file>
+    </fileset.main>
+    <fileset.resources />
+    <fileset.package />
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\arraySizeDebug.m</file>
+      <file>${PROJECT_ROOT}\changeBinBoundaries.m</file>
+      <file>${PROJECT_ROOT}\getFileCompiler.m</file>
+      <file>${PROJECT_ROOT}\NanoCreaterLoaderClearer.m</file>
+      <file>${PROJECT_ROOT}\NanoDataSave.m</file>
+      <file>${PROJECT_ROOT}\NanoImport.m</file>
+      <file>${PROJECT_ROOT}\NanoImport_Agilent_General.m</file>
+      <file>${PROJECT_ROOT}\NanoImport_Agilent_LoadData.m</file>
+      <file>${PROJECT_ROOT}\NanoImport_Agilent_Sample_Meaner.m</file>
+      <file>${PROJECT_ROOT}\NanoImport_Saving.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_avg_time_per_indent.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_bin_func.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_bin_func_QS.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_CSM_Agilent.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_final_stage.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_first_stage.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_QS_Agilent.m</file>
+      <file>${PROJECT_ROOT}\NanoMachineImport_QS_Bruker.m</file>
+      <file>${PROJECT_ROOT}\NanoMeaner.m</file>
+      <file>${PROJECT_ROOT}\NanoPlotter.m</file>
+      <file>${PROJECT_ROOT}\NanoPlotter_main.m</file>
+      <file>${PROJECT_ROOT}\NanoSaveFolderPref.m</file>
+      <file>${PROJECT_ROOT}\QuickPlotData.m</file>
+      <file>${PROJECT_ROOT}\wGenerator.m</file>
+    </fileset.depfun>
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}\NanoReader\for_testing" name="readme.txt" optional="true">C:\Users\rober_000\OneDrive\Documents\GitHub\NanoindenterReader\NanoReader\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\NanoReader\for_testing" name="splash.png" optional="false">C:\Users\rober_000\OneDrive\Documents\GitHub\NanoindenterReader\NanoReader\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\NanoReader\for_testing" name="NanoReader.exe" optional="false">C:\Users\rober_000\OneDrive\Documents\GitHub\NanoindenterReader\NanoReader\for_testing\NanoReader.exe</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2020a</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

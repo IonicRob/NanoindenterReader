@@ -80,8 +80,7 @@ function NanoImport(debugON,DefaultDlg,USS)
                 mode = 'csm';
                 NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
             case 'QS Bruker'
-                disp('NOT READY YET');
-                return
+                NanoMachineImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
             case 'QS Agilent'
                 mode = 'qs';
                 NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)

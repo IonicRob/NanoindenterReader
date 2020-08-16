@@ -25,18 +25,19 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
         end
     end
     
-    quest = sprintf('Where to save %s?:',FileIDName);
     [SavingLocYN,cd_save] = NanoSaveFolderPref(quest,cd_init,cd_load);
 
 
     DataSaveName = sprintf('%s_%s_Data.mat',FileIDName,SaveTime);
     
     if strcmp(SavingLocYN,'do not save data') == false
-        fprintf('Save destination = "%s"\n',cd_save);
         cd(cd_save);
+        
         quest = sprintf('Choose how to save the data for %s?:',FileIDName);
         pbnts = {'Auto','Semi-auto','Manual'};
         [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
+    
+        fprintf('Save destination = "%s"\n',cd_save);
         switch SavingData
             case 'auto'
                 disp('Saving the processed nanoindentation data');
@@ -52,9 +53,7 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
                 disp('YOU have to manually save the data!');
         end
         cd(cd_init);
-    else
-        disp('You have chosen not to save the data, hence YOU have to manually save the data!');
-    end
+
 
 
 end
