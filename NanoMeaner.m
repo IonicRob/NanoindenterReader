@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON)
+function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
     title = 'NanoMeaner';
     fprintf('%s: Started!\n',title);        
     
@@ -96,7 +96,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     end
     
     quest = {'Save the range mean table data?:'};
-    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
+    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init,LOC_load);
     if ~strcmp(SavingLocYN,'do not save data')
         % Change current directory to where the user selected to save the
         % data.

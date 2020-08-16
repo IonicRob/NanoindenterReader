@@ -10,7 +10,7 @@ clc
 close all
 
 % Clears all variables
-clearvars;
+clearvars('-except','ImageFormatType');
 
 % The below clears all of the 'Do Not Show This Again' for
 % preference diaglogue boxes.
@@ -45,9 +45,7 @@ switch CreateOrLoad
     case 'Import'
         NanoImport(debugON,DefaultDlg,USS)
     case 'Plot'
-        ChooseSaveType = true;
-        DfltImgFmtType = 'png';
-        NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
+        NanoPlotter(debugON,PlotAesthetics,DefaultDlg)
     otherwise
         errordlg('No action was chosen! Code will terminate!')
         return
@@ -99,6 +97,7 @@ function [PlotAesthetics,DefaultDlg,USS] = SettingsFunction
     USS.FormatAnswer = 'Line + Error Region';
     USS.w = 0;
     USS.ErrorPlotMode = 'Standard deviation';
+    USS.ImageFormatType = 'png';
 end
 
 

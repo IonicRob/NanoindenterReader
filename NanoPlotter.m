@@ -1,26 +1,49 @@
 %% Nanoindentation Data Loader
 % Written by Robert J Scales
 
-function NanoDataLoader(debugON,PlotAesthetics,DefaultDlg)
+function NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
 %% Basic Set-up
 % The comments for what the below does can be found pretty much in
 % NanoDataCreater!
 
 clc;
-dlg_title = 'NanoindentationDataLoader';
+dlg_title = 'NanoPlotter';
 fprintf('%s: Started!\n\n',dlg_title);
 NanoCreaterLoaderClearer(false,false);
 LOC_init = cd;
 
-% This function sets the figure image saving file type.
-ImageFormatType = changeFigureSaveType;
+if ChooseSaveType == true
+    % This function sets the figure image saving file type.
+    ImageFormatType = changeFigureSaveType;
+else
+    % This occurs when choosing the save type isn't explicit and so chooses
+    % the default image format type (in NanoMainCode).
+    ImageFormatType = DfltImgFmtType;
+    clear DfltImgFmtType
+    fprintf('Default saving format of "%s" has been chosen!\n',ImageFormatType);
+end
 
 % This loads the ".mat" files produced by NanoDataCreater which the user
 % wishes to plot on the same figure.
 [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON);
 
+% The below uses the function checkStructuresCompat to see if the data
+% analysis done on the files is the same. See function below for further
+% details.
+passTF = checkStructuresCompat(debugON,FileStuctures);
+if passTF == false
+    return
+end
+
+
 % The below chooses how the data will be presented in the figures.
-[FormatAnswer] = FormattingChoosing(dlg_title,DefaultDlg);
+% This is how the data will be shown on the graph.
+FormatAnswer = questdlg('How do you want to present the data?',dlg_title,'Line + Error Region','Line + Error Bars','Line',DefaultDlg.FormatAnswer);
+if strcmp(FormatAnswer,'') == true
+    DLG = errordlg('Exit button was pressed! Code will terminate!');
+    waitfor(DLG);
+    return
+end
 
 %% Plotting
 
@@ -37,7 +60,7 @@ ToMeanOrNotToMean = questdlg('Find a mean value within a range?',dlg_title,'Yes'
 switch ToMeanOrNotToMean
     case 'Yes'
         % This is the function that does all of the work.
-        DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON);
+        DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load);
     otherwise
         disp('You have decided not to find the mean value within a range...');
         % Setting DataIDName to nan will then make NanoDataSave ask for
@@ -51,7 +74,7 @@ end
 LoadingMode = true;
 cd(LOC_init);
 % The output data is mainly useful for NanoDataCreater but not for this.
-[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName);
+[~,~,~,~] = NanoDataSave(ImageFormatType,LoadingMode,LOC_init,fileNameList,DataIDName,LOC_load);
 
 
 fprintf('NanoDataLoader: Complete!\n\n');
@@ -119,20 +142,6 @@ function [FileStuctures,fileNameList,LOC_load] = LoadingFilesFunc(debugON)
     end
 end
 
-% This function is pretty self-explanatory
-function [FormatAnswer] = FormattingChoosing(dlg_title,DefaultDlg)
-    % This is how the data will be shown on the graph.
-    FormatAnswer = questdlg('How do you want to present the data?',dlg_title,'Line + Error Region','Line + Error Bars','Line',DefaultDlg.FormatAnswer);
-
-    switch FormatAnswer
-        case 'Line'
-            disp('No error bars will be shown on the graph');
-        case ''
-            errordlg('Exit button was pressed! Code will terminate!')
-            return
-    end
-end
-
 % The below helps keep track whether the user wants to change what the code
 % saves the figures as in terms of file type.
 function ImageFormatType = changeFigureSaveType
@@ -177,5 +186,63 @@ function ImageFormatType = ImageSaveType
 end
 
 
+% Following on from above, the if this check is not done then we are
+% mixing data with different error analysis.
+% The variable names is dependent on the method and machine, and this
+% check is done because currently the code is limited with capability.
+% May impliment an advanced plotter which the user has to select the
+% column for a specific data type to plot.
+function passTF = checkStructuresCompat(debugON,FileStuctures)
+    NumLoaded = length(FileStuctures);
 
+    if debugON == true
+        fprintf('FileStuctures has length of %d...\n',NumLoaded);
+    end
+    
+    w_check_array = nan(NumLoaded,1);
+    stdevORstderror_check = cell(NumLoaded,1);
+    
+    varNames_all_same = true;
+    
+    first_varNames = FileStuctures{1}.varNames;
+    
+    for i = 1:NumLoaded
+        current_struct = FileStuctures{i};
+        current_w = current_struct.w;
+        current_varNames = current_struct.varNames;
+        stdevORstderror_check{i} = current_struct.ErrorPlotMode;
+        w_check_array(i) = current_w;
+%         fprintf('%s has w = %d...\n',current_struct.DataIDName,current_w);
+        if strcmp(char(current_varNames),char(first_varNames)) == false
+            varNames_all_same = false;
+        end
+    end
+    
+    w_all_same = ( length(unique(w_check_array)) == 1 );
+    Std_all_same = ( length(unique(stdevORstderror_check)) == 1 );
+    
+    if (w_all_same == false) || (varNames_all_same == false) || (Std_all_same == false)
+        Message = cell(3,1);
+        Message{1} = sprintf('The files loaded have something not the same (i.e. "false"): \n');
+        Message{2} = sprintf(' - standard deviation weighting (w) = %s \n', logical2String(w_all_same));
+        Message{3} = sprintf(' - variable names (varNames) = %s \n', logical2String(varNames_all_same));
+        Message{4} = sprintf(' - same error type (stdev or stderror) = %s \n', logical2String(Std_all_same));
+        DLG = errordlg(Message);
+        waitfor(DLG);
+        passTF = false;
+        return
+    else
+        passTF = true;
+    end
+    
+end
 
+function Output = logical2String(input)
+    if input == true
+        Output = "true";
+    elseif input == false
+        Output = "false";
+    else
+        Output = "Error!";
+    end
+end

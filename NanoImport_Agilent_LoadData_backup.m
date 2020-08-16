@@ -2,19 +2,10 @@
 % This works on each loaded indent array spreadsheet from at a time an
 % Agilent CSM or QS output.
 
-function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,filename,changeBBsStruct,w,XDataCol,NoYCols,mode,varNames,waitTime)
+function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,filename,bins,w,MaxDepthCol,XDataCol,NoYCols,mode,varNames)
     title = 'NanoMachineImport_Agilent - MainProcess Function';
     [ProgressBar,SpreadSheetName] = NanoMachineImport_first_stage(title,file);
     
-    % This accesses the data produced from changeBinBoundaries
-    DepthLimit = changeBBsStruct.DepthLimit;
-    bin_boundaries = changeBBsStruct.bin_boundaries;
-    bin_midpoints = changeBBsStruct.bin_midpoints;
-    bins = changeBBsStruct.bins;
-    message = sprintf('%s: Set-up - Bin Calculations Imported',SpreadSheetName);
-    waitbar(1/3,ProgressBar,message);
-    
-    % This is a list of all of the sheet names for that spreadsheet file.
     SheetNames = sheetnames(filename);
     
     % This accesses the first sheet named 'Results'
@@ -25,9 +16,33 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
     % sheets it will be fine
     NumOfIndents = size(Table_Sheet1,1)-3;
     message = sprintf('%s: Set-up - "Results" Analysed',SpreadSheetName);
-    waitbar(2/3,ProgressBar,message);
+    waitbar(1/4,ProgressBar,message);
+    
+    
+    % This accesses the second sheet named 'Required Inputs'
+    opts_Sheet2 = detectImportOptions(filename,'Sheet','Required Inputs','FileType','spreadsheet','PreserveVariableNames',true);
+    Table_Sheet2 = readtable(filename,opts_Sheet2);
+    
+    % This accesses the depth limit, from which it will then work out the
+    % bin boundaries.
+    DepthLimit = table2array(Table_Sheet2(1,MaxDepthCol)); % in nm
+    bin_boundaries = transpose(linspace(0,DepthLimit,bins+1));
+%     binWidth = bin_boundaries(2)-bin_boundaries(1);
+    
+    message = sprintf('%s: Set-up - "Required Inputs" Analysed',SpreadSheetName);
+    waitbar(2/4,ProgressBar,message);
 
-
+    % This section generates the names of the bin boundaries, which will
+    % pop up during debug if it can't compute a bin. The midpoints of the
+    % bins which are used as the x-axis points are also calculated.
+    bin_boundaries_text = strings(bins,1);
+    bin_midpoints = zeros(bins,1);
+    for BinNum=1:bins
+        bin_boundaries_text(BinNum,1) = sprintf("%d:%d",bin_boundaries(BinNum),bin_boundaries(BinNum+1));
+        bin_midpoints(BinNum,1) = mean([bin_boundaries(BinNum),bin_boundaries(BinNum+1)]);
+    end
+    message = sprintf('%s: Set-up - Bin Calculations Done',SpreadSheetName);
+    waitbar(3/4,ProgressBar,message);
     
     % This is a 3D array which will store the force, time, HCS, H, and E
     % data, with the 3rd axis being for each indent.
@@ -80,6 +95,7 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
     % This gets the penultimate array data and the other essential
     % information to produce an output structure containing all of the
     % information from the imported Excel spreadsheet.
+    waitTime = 5;
     OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
     close(ProgressBar);
     fprintf('%s: Completed!\n',title);

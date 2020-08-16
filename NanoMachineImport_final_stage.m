@@ -39,15 +39,17 @@ function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,
     
 %% Plotting the data briefly if debug is on
     % This plots all of the data for waitTime seconds before closing the figures
-    if debugON == true
-        for i=1:(TableSize(2)-1)
-            DebugFigure = figure();
-            plot(XData,FinalArray(:,i));
-            title(varNames{i+1});
-            xlabel(varNames{1});
-            pause(waitTime);
-            close(DebugFigure);
-        end
-    end
+    
+    QuickPlotData(XData,FinalArray,varNames,waitTime)
+%     if debugON == true
+%         for i=1:(TableSize(2)-1)
+%             DebugFigure = figure();
+%             plot(XData,FinalArray(:,i));
+%             title(varNames{i+1});
+%             xlabel(varNames{1});
+%             pause(waitTime);
+%             close(DebugFigure);
+%         end
+%     end
     
 end

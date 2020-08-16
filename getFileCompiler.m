@@ -1,6 +1,8 @@
 %% getFileCompiler
 
 function [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file)
+    title = 'getFileCompiler';
+    fprintf('%s: Started!\n',title);
 
     filename = string(fullfile(path,file));
 
@@ -28,7 +30,6 @@ function [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file)
     if debugON == true
         fprintf("Loading from '%s'\n",path);
         fprintf('Number of files loaded = %d\n',NoOfSamples);
-        disp('function getFileCompiler completed...');
     end
-
+    fprintf('%s: Completed!\n',title);
 end

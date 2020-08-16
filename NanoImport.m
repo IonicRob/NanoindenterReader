@@ -36,7 +36,9 @@ function NanoImport(debugON,DefaultDlg,USS)
             SettingsDone = true;
         case 'use scipt settings'
             % To alter these alter the values in USS in NanoMainCode.
-            bins = USS.bins; w = USS.w; ErrorPlotMode = USS.ErrorPlotMode;
+            bins = USS.bins;
+            w = USS.w;
+            ErrorPlotMode = USS.ErrorPlotMode;
             SettingsDone = true;
         case 'Use Previously Used Settings'
             disp('Using previously used settings!');
@@ -75,12 +77,14 @@ function NanoImport(debugON,DefaultDlg,USS)
 
         switch ChosenMethod
             case 'CSM Agilent'
-                NanoImport_Agilent_CSM(debugON,bins,w,ErrorPlotMode)
+                mode = 'csm';
+                NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
             case 'QS Bruker'
                 disp('NOT READY YET');
                 return
             case 'QS Agilent'
-                NanoImport_Agilent_QS(debugON,bins,w,ErrorPlotMode)
+                mode = 'qs';
+                NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
         end
 
 end
