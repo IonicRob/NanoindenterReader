@@ -15,12 +15,7 @@
 % values against nanoindentation depth.
 %
 % "Export" is an option to convert the information stored in the structures
-% from "import" into an Excel spreadsheet. This can allow one to do other
-% analysis that is not currently available to the current version of the
-% code, OR send the code to someone without Matlab (or who lacks the
-% knowledge) so that they can work on it.
-% It stores the relevent details on the analysis on the first page so that
-% the user knows how the data was treated.
+% from "import" into an Excel spreadsheet. This can allow one to m
 
 %% Clean Slate Section
 % Clears the command window
