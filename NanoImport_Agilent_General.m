@@ -61,8 +61,13 @@ end
 % reached for each indent in each sample, finds the maximum and generates
 % the appropriate values dependent on that. It also allows the user to
 % change these values!
-[DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,OverwriteTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol);
-changeBBsStruct = struct('OverwriteTF',OverwriteTF,'DepthLimit',DepthLimit,'bin_boundaries',bin_boundaries,'binWidth',binWidth,'bin_boundaries_text',bin_boundaries_text,'bin_midpoints',bin_midpoints,'bins',bins);
+[DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,InvalidChoiceTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol);
+changeBBsStruct = struct('InvalidChoiceTF',InvalidChoiceTF,'DepthLimit',DepthLimit,'bin_boundaries',bin_boundaries,'binWidth',binWidth,'bin_boundaries_text',bin_boundaries_text,'bin_midpoints',bin_midpoints,'bins',bins);
+if InvalidChoiceTF == true
+    DLG = errordlg('You exited the changing bin boundaries option!',dlg_title);
+    waitfor(DLG);
+    return
+end
 if debugON == true
     fprintf('DepthLimit = %d \t binWidth = %d \t Num of bins = %d \t \n',DepthLimit,binWidth,bins);
     disp('bin_boundaries_text...'); disp(bin_boundaries_text);

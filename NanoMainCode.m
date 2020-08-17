@@ -41,7 +41,7 @@ clearvars('-except','SettingsDone','ImageFormatType');
 % Setting this to true allows debugging messages to pop up within the
 % command window following code that is run.
 % It is useful to turn on to see what the code is doing.
-debugON = true;
+debugON = false;
 
 % To change pre-defined settings in the code change the values within this
 % function. There are options to change certain settings within the latter
@@ -56,6 +56,13 @@ code_title = 'Nanoindentation Main Code';
 ListOfFunctions = {'Import','Plot','Export'}; 
 PromptString = 'What action do you want to do?';
 FunctionToUse = listdlg('ListString',ListOfFunctions,'PromptString',PromptString,'SelectionMode','single','Name',code_title);
+
+if isempty(FunctionToUse) == true
+    PopUp = warndlg('You have not chosen an action, hence the code will terminate.',code_title);
+    waitfor(PopUp)
+    return
+end
+
 FunctionToUse = ListOfFunctions{FunctionToUse};
 
 switch FunctionToUse
