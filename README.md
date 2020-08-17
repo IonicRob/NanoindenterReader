@@ -12,7 +12,7 @@ Clear acknowledgement of the use of this code, whether that be by using it for d
 Contacting the IonicRob GitHub account for any of the aforementioned uses would be appreciated to see how the code will be used in research and in development of other work!
 
 
------ H O W  T O  U S E -----
+----- H O W _ T O _ U S E -----
 
 Current List of Actions in NanoMainCode:
 Import
