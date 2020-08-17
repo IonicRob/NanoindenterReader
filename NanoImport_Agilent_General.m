@@ -102,8 +102,9 @@ end
 
 %% Final Stage
 
+method_name = string(sprintf('Agilent-%s',upper(mode)));
 % This saves the data as a structure called dataToSave.
-[~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
+[~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,path);
 
 fprintf('%s: Completed!\n\n',dlg_title);
 end

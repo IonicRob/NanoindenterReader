@@ -173,7 +173,8 @@ end
         ErrorData = OutPut.FinalErrors;
     end
     
-    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
+    method_name = "Bruker-QS";
+    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,path);
 
     
     fprintf('%s: Complete!\n',title);

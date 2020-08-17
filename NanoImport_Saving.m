@@ -1,6 +1,6 @@
 %% NanoImport_Saving
 
-function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,cd_load)
+function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,cd_load)
     
     dlg_title = 'NanoImport_Saving';
 
@@ -12,7 +12,7 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
     SaveTime = datestr(datetime('now'),'yyyy-mm-dd-HH-MM');
 
     % This is the structure containing the data to save.
-    dataToSave = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',FileIDName,'DataIDName',FileIDName,'w',w,'ErrorPlotMode',ErrorPlotMode,'varNames',string(varNames),'XDataCol',XDataCol);
+    dataToSave = struct('ValueData',ValueData,'ErrorData',ErrorData,'SampleNameList',FileIDName,'DataIDName',FileIDName,'w',w,'ErrorPlotMode',ErrorPlotMode,'varNames',string(varNames),'XDataCol',XDataCol,'method_name',method_name);
 
     if debugON == true
         fields = fieldnames(dataToSave);

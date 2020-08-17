@@ -21,6 +21,7 @@ function NanoExport2Spreadsheet(debugON)
     varNames = FileStuctures{1}.varNames;
     w = FileStuctures{1}.w;
     ErrorUsed = FileStuctures{1}.ErrorPlotMode;
+    method_name = FileStuctures{1}.method_name;
     
     varTypes    = cell(1,size(ValueData,2));
     varTypes(:) = {'double'};
@@ -29,12 +30,13 @@ function NanoExport2Spreadsheet(debugON)
     ValueTable = VEFillFunc(VETemplateTable,ValueData);
     ErrorTable = VEFillFunc(VETemplateTable,ErrorData);
     
-    detailsTableNames = {'DataIDName','w (stdev weighting)','ErrorUsed'};
-    detailsTableTypes = {'string','double','string'};
+    detailsTableNames = {'method_name','DataIDName','w (stdev weighting)','ErrorUsed'};
+    detailsTableTypes = {'string','string','double','string'};
     detailsTable = table('Size',[1,length(detailsTableNames)],'VariableTypes',detailsTableTypes,'VariableNames',detailsTableNames);
-    detailsTable(:,1) = table(IDName);
-    detailsTable(:,2) = table(w);
-    detailsTable(:,3) = table(string(ErrorUsed));
+    detailsTable(:,1) = table(method_name);
+    detailsTable(:,2) = table(IDName);
+    detailsTable(:,3) = table(w);
+    detailsTable(:,4) = table(string(ErrorUsed));
     
     quest = sprintf('Export the data for "%s" as an Excel spreadsheet?:',IDName);
     [SavingLocYN,cd_save] = NanoSaveFolderPref(quest,cd_init,cd_load);
