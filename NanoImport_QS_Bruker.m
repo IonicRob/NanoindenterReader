@@ -1,4 +1,4 @@
-%% NanoMachineImport_QS_Bruker
+%% NanoImport_QS_Bruker
 % By Robert J Scales
 %
 % Currently this code only takes bins up to the maximum indent depth (i.e.
@@ -7,15 +7,15 @@
 %
 % Attempting to make it do loading and unloading
 
-function NanoMachineImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
+function NanoImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
 %% Testing Initialisation
-title = 'NanoMachineImport_QS_Bruker';
+title = 'NanoImport_QS_Bruker';
 
 testON = false;
 
 if testON == true
     clc;
-    WARN = warndlg('Currently in testing mode for NanoMachineImport_QS_Bruker!!');
+    WARN = warndlg('Currently in testing mode for NanoImport_QS_Bruker!!');
     waitfor(WARN);
     bins = 100;
     debugON = true;
@@ -24,13 +24,14 @@ if testON == true
     clearvars('-except','title','debugON','bins','w','ErrorPlotMode');
 end
 %% Setup
-    
+% Similar to NanoImport_Agilent_General. I will note the biggest changes.
+
     cd_init = cd;
     varNames = {'Depth (nm)','Load (µN)','Time (s)','Disp. Voltage(V)','Force Voltage(V)'};
     XDataCol = 1;
     NoColsOfData = 5;
     NoYCols = NoColsOfData-1;
-    waitTime = 3; % You can change this!
+    waitTime = 2; % You can change this!
 
     % This allows to get the file name and location information for
     % multiple files, starting from the load location.
@@ -43,12 +44,10 @@ end
         errordlg('No files selected! Code will terminate!')
         return
     end
-    
-    [ProgressBar,IDName] = NanoMachineImport_first_stage(title,file{1});
-%     [w,ProgressBar,waitTime,IDName] = NanoMachineImport_first_stage(title,StdDevWeightingMode,file{1});
-    
-    LOC_load = path;
-    
+        
+    IDName = file{1}; % This becomes the ID for the loaded samples.
+    ProgressBar = waitbar(0,sprintf('%s: Setting up',IDName)); % Creates the progress bar.
+        
     % If one file is chosen its file type will be char and not cell, hence
     % this makes it into a 1x1 cell if true.
     if isa(file,'char') == true
@@ -61,6 +60,7 @@ end
     
     MaxIndentDepth = nan;
     
+    % The data for each indent will be stored within a cell array!
     MasterTable = cell(NumOfIndents,1);
     
     % This fills in fileNameList
@@ -68,9 +68,7 @@ end
         fprintf('Current file loaded = %s\n',file{i});
         IndentFilename = fullfile(path,file{i});
         opts = detectImportOptions(IndentFilename,'VariableNamesLine',6,'Encoding','windows-1252','ExpectedNumVariables',5,'PreserveVariableNames',true);
-%         currTable = readtable(filename,opts);
         currMatrix = readmatrix(IndentFilename,opts);
-        NumOfRows = size(currMatrix,1);
         Depth = currMatrix(:,1); % Depth in nm which is good.
         Load = currMatrix(:,2)/1000; % Load is converted from uN to mN!
         Time = currMatrix(:,3); % Time in s which is good.
@@ -81,9 +79,8 @@ end
             fprintf('\tMax depth in file loaded = %gnm\n',currMaxIndentDepth);
         end
         MaxIndentDepth = max([currMaxIndentDepth,MaxIndentDepth]);
-        OutputTable = MakeTableForIndent(Depth,Load,Time,DispVoltage,ForceVoltage,varNames);
-        MasterTable{i} = OutputTable;
-        clear currMaxIndentDepth
+        MasterTable{i} = MakeTableForIndent(Depth,Load,Time,DispVoltage,ForceVoltage,varNames);
+        clear IndentFilename opts currMatrix Depth Load Time DispVoltage ForceVoltage currMaxIndentDepth
     end
     
 %% Binning Set-up
@@ -105,17 +102,17 @@ end
         bin_midpoints(BinNum,1) = mean([bin_boundaries(BinNum),bin_boundaries(BinNum+1)]);
     end
     
-    % This is done so that the loading and unloading can be done.
-    TotalNumOfRows = 2*bins;
+        
     % Specifically this repeats the midpoints on the loading up but flips
     % it upside down and attaches it to the bottom.
     bin_midpoints =  vertcat(bin_midpoints,flipud(bin_midpoints));
     
-    % Initialise
-    PenultimateArray = zeros(TotalNumOfRows,NoYCols,NumOfIndents);
-    PenultimateErrors = zeros(TotalNumOfRows,NoYCols,NumOfIndents);
+    % This is done so that the loading and unloading can be done, by having
+    % the number of rows twice the number of bins.
+    PenultimateArray = zeros(2*bins,NoYCols,NumOfIndents);
+    PenultimateErrors = zeros(2*bins,NoYCols,NumOfIndents);
     
-    % Template 2D matrices per indent
+    % Template 2D matrices per indent for NanoMachineImport_bin_func_QS
     TemplateArray = zeros(bins,NoYCols);
     TemplateErrors = zeros(bins,NoYCols);
     
@@ -146,13 +143,16 @@ end
         [D2Array_loading,D2Errors_loading,N_loading] = NanoMachineImport_bin_func_QS(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
         [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
 
+        % These arrays are flipped upside down because they are ordered in
+        % increasing bins, but the midpoints are descending.
         D2Array_unloading = flipud(D2Array_unloading);
         D2Errors_unloading = flipud(D2Errors_unloading);
         
         PenultimateArray(:,:,currIndNum) = vertcat(D2Array_loading,D2Array_unloading);
         PenultimateErrors(:,:,currIndNum) = vertcat(D2Errors_loading,D2Errors_unloading);
         N = horzcat(N_loading,N_unloading);
-        clear D2Array_loading D2Array_unloading D2Errors_loading D2Errors_unloading N_loading N_unloading
+        
+        clear Table_Current Table_Current_loading Table_Current_unloading RowOfMaxDepth D2Array_loading D2Array_unloading D2Errors_loading D2Errors_unloading N_loading N_unloading
         
         indProTime(currIndNum,1) = toc;
     end
@@ -166,11 +166,6 @@ end
     OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
     close(ProgressBar);
     
-    % Sets filename to the last indent loaded. Just to identify what was
-    % generally loaded to produce this data. The IDName should be a better
-    % identifier though in purpose.
-%     filename = IndentFilename;
-    
     ValueData = OutPut.FinalArray;
     if strcmp(ErrorPlotMode,'Standard deviation')
         ErrorData = OutPut.FinalStdDev;
@@ -178,7 +173,7 @@ end
         ErrorData = OutPut.FinalErrors;
     end
     
-    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,LOC_load);
+    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
 
     
     fprintf('%s: Complete!\n',title);
@@ -186,6 +181,6 @@ end
 
 %% Functions
 
-function OutputTable = MakeTableForIndent(Depth,Load,Time,DispVoltage,ForceVoltage,varNames);
+function OutputTable = MakeTableForIndent(Depth,Load,Time,DispVoltage,ForceVoltage,varNames)
     OutputTable = table(Depth,Load,Time,DispVoltage,ForceVoltage,'VariableNames',varNames);
 end

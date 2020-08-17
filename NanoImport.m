@@ -7,12 +7,6 @@ function NanoImport(debugON,DefaultDlg,USS)
     % This is the title for notifications.
     dlg_title = 'NanoImport';
     fprintf('%s: Started!\n\n',dlg_title);
-    
-
-    % The below gives the option to clear white list the clearing of certain
-    % variables and/or clear all preferences.
-    NanoCreaterLoaderClearer(false,false);
-
 
     %% Settings
 
@@ -55,11 +49,11 @@ function NanoImport(debugON,DefaultDlg,USS)
 
     %% Main Data Processing Section
 
-        ValidMethodList = {'CSM Agilent','QS Agilent','QS Bruker','Other','Help'};
+        MethodList = {'CSM Agilent','QS Agilent','QS Bruker','Other','Help'};
         PromptString = {'Select the type method/system to import:','Only one type can be selected at a time.'};
-        [ChosenMethod,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',ValidMethodList);
+        [ChosenMethod,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',MethodList);
         if isempty(ChosenMethod) == false
-            ChosenMethod = ValidMethodList{ChosenMethod};
+            ChosenMethod = MethodList{ChosenMethod};
         else
             msg = {'No method/system was chosen!','Code will terminate!'};
             PopUpMsg(msg,title,'Error','Exit')
@@ -75,15 +69,17 @@ function NanoImport(debugON,DefaultDlg,USS)
             fprintf('Valid method chosen!\n\n');
         end
 
+        clear MethodList PromptString
+        
         switch ChosenMethod
             case 'CSM Agilent'
                 mode = 'csm';
                 NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
-            case 'QS Bruker'
-                NanoMachineImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
             case 'QS Agilent'
                 mode = 'qs';
                 NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
+            case 'QS Bruker'
+                NanoImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
         end
 
 end
@@ -92,7 +88,7 @@ end
 
 
 
-%% Functions
+%% InBuilt Functions
 
 
 % This allows the user to choose the settings via dialogue boxes.

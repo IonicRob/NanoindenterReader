@@ -1,4 +1,4 @@
-%% NanoImport_Agilent_General
+%% NanoImport_Agilent_QS
 % By Robert J Scales
 % Because the Agilent data is exported as Excel spreadsheets which have
 % multiple indent data stored in them. Then in order to mean across
@@ -19,20 +19,20 @@ if testTF == true
     waitfor(WARN);
     debugON = true;
     bins = 100;
-    w = 0; % 'N-1' weighting for stdev
+    w = 0; % 'N-1' weighting
     ErrorPlotMode = 'Standard deviation';
     mode = 'qs'; % Testing mode is defined in here
     clearvars('-except','dlg_title','debugON','bins','w','ErrorPlotMode','mode');
 end
 
 cd_init = cd; % Initial directory
-waitTime = 2; % The time spent on each figure.
+waitTime = 3; % The time spent on each figure.
 
 % Configs the code based on whether the data to import is CSM or QS
 switch mode
     case 'csm'
         NoYCols = 6-1; % The total number of columns - the XData column.
-        XDataCol = 1; % The location of the XData in the spreadsheet.
+        XDataCol = 1; % The loca
         % This is the order in which the final data will be presented in
         % column wise!
         varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
@@ -67,17 +67,20 @@ end
 
 % The prepares arrays for the data to be filled in with.
 PreValueData = zeros(bins,NoYCols,1);
+IndentDepthLimits = nan(NoOfSamples,1);
 
 %% Main Data Gathering
 
-% Goes through each sample and runs NanoImport_Agilent_LoadData on each.
-% PreValueData is then concatenated in the 3rd dimension by the indents
-% from each sample.
+% Goes through each sample and runs NanoMachineImport on each and finds
+% their indent depth limits to make sure it will bin the same for all
+% of the samples. PreValueData is then concatenated in the 3rd
+% dimension by the indents from each sample.
 for i=1:NoOfSamples
     fprintf("Currently on sample number %d/%d\n",i,NoOfSamples);
     filename = fileNameList(i,2);
     [FunctionOutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file{i},filename,changeBBsStruct,w,XDataCol,NoYCols,mode,varNames,waitTime);
-    PreValueData = cat(3,PreValueData,FunctionOutPut.IndentsArray); % 3rd dimension concatenation of the data from the binned indents
+    IndentDepthLimits(i) = FunctionOutPut.DepthLimit;
+    PreValueData = cat(3,PreValueData,FunctionOutPut.IndentsArray);
     fileNameList(i,1) = SpreadSheetName;
 end
 
@@ -86,7 +89,7 @@ end
 PreValueData(:,:,1) = [];
 
 % This means the data to produce the values and their associated errors
-[ValueData,ErrorData] = NanoImport_Agilent_Sample_Meaner(PreValueData,FunctionOutPut,w,ErrorPlotMode);
+[ValueData,ErrorData] = NanoImport_Agilent_Sample_Meaner(PreValueData,IndentDepthLimits,FunctionOutPut,w,ErrorPlotMode);
 
 if NoOfSamples > 1
     % This plots the results of the meaned data, doesn't show if only one
@@ -100,11 +103,12 @@ end
 %% Final Stage
 
 % This saves the data as a structure called dataToSave.
+
 [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
 
 fprintf('%s: Completed!\n\n',dlg_title);
 end
 
-%% InBuilt Functions
+%% Nested Functions
 
 

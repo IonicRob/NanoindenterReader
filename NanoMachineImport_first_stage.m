@@ -1,18 +1,10 @@
 %% NanoMachineImport_first_stage
 
-function [ProgressBar,IDName] = NanoMachineImport_first_stage(title,file)
+function [ProgressBar,IDName] = NanoMachineImport_first_stage(file)
     
-    fprintf('%s: Started!\n',title);
-    
-%     HeadingName = sprintf('Enter name for nanoindentation data titled "%s":',file);
-%     IDName = string(inputdlg({HeadingName},'Type data name here:',[1,100]));
-%     if strcmp(IDName,"")
-%         errordlg('No sample ID name entered! Code will terminate!')
-%         return
-%     end
-    IDName = file;
+    IDName = file; % This becomes the ID for the loaded sample.
     
     message = sprintf('%s: Setting up',IDName);
-    ProgressBar = waitbar(0,message);
+    ProgressBar = waitbar(0,message); % Creates the progress bar.
     
 end

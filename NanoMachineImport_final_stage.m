@@ -27,15 +27,21 @@ function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,
     % The below is used for clearer code.
     XData = bin_midpoints;
     
+    % This sets up the table
     TableSize = [size(FinalArray,1),size(FinalArray,2)+1];
     varTypes    = cell(1,TableSize(2));
     varTypes(:) = {'double'};
+    
+    % Happens if the lengths don't match
     if TableSize(2) ~= length(varNames)
         OutPut = nan;
         DLG = errordlg(sprintf('Sizes not compatible!\nNum of table cols = %d\nNum of variable names = %d\n',TableSize(2),length(varNames)));
+        waitfor(DLG);
         disp(varNames);
         return
     end
+    
+    % If the lengths do match then this happens, it creates the table.
     FinalTable = table('Size',TableSize,'VariableTypes',varTypes,'VariableNames',varNames);
     FinalTable(:,1) = table(XData);
     for column = 1:TableSize(2)-1
@@ -44,18 +50,8 @@ function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,
     OutPut.FinalTable = FinalTable;
     
 %% Plotting the data briefly if debug is on
+
     % This plots all of the data for waitTime seconds before closing the figures
-    
     QuickPlotData(XData,FinalArray,varNames,waitTime)
-%     if debugON == true
-%         for i=1:(TableSize(2)-1)
-%             DebugFigure = figure();
-%             plot(XData,FinalArray(:,i));
-%             title(varNames{i+1});
-%             xlabel(varNames{1});
-%             pause(waitTime);
-%             close(DebugFigure);
-%         end
-%     end
     
 end

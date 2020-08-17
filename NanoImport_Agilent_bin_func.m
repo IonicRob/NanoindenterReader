@@ -1,14 +1,16 @@
-%% NanoMachineImport_bin_func
+%% NanoImport_Agilent_bin_func
 %
-% This code works of 
+% This code bins the data for the current indent (Table_Current) and
+% obtains the mean for that bin along with the error, and the populations
+% in each of the bins.
 
-function [TemplateArray,TemplateErrors,N] = NanoMachineImport_bin_func(debugON,w,Table_Current,BinStruct,msg_struct)
+function [TemplateArray,TemplateErrors,N] = NanoImport_Agilent_bin_func(debugON,w,Table_Current,BinStruct,msg_struct)
 %%
 
     testTF = false;
 
     if testTF == true
-        WARN = warndlg('Currently in testing mode for NanoMachineImport_bin_func!!');
+        WARN = warndlg('Currently in testing mode for NanoImport_Agilent_bin_func!!');
         waitfor(WARN);
         clc
         clearvars('-except','testTF');
@@ -25,27 +27,19 @@ function [TemplateArray,TemplateErrors,N] = NanoMachineImport_bin_func(debugON,w
     NumOfColumns = size(Table_Current,2);
     NumOfDataColumns = NumOfColumns-1;
 
+    % Extracts the info from the structure.
     XDataCol = BinStruct.XDataCol;
     bins = BinStruct.bins;
     bin_boundaries = BinStruct.bin_boundaries;
 
-    XData = Table_Current(:,XDataCol);
-
-%     % If the input indent depth but and the bin boundaries are not vectors
-%     % then this error dlg is produced.
-%     if ~isvector(XData) || ~isvector(bin_boundaries)
-%         errordlg('Table_Current and/or bin_boundaries is not a matrix!');
-%         disp(XData);
-%         disp(bin_boundaries);
-%         return
-%     end
-
     % This bins the indent head displacement and counts how many in
     % each bin along with what bin each row belongs to. N = bin populations
-    [N,~,binIndex] = histcounts(XData,bin_boundaries);
+    [N,~,binIndex] = histcounts(Table_Current(:,XDataCol),bin_boundaries);
 
+    % These are all of the columns which contain data other than the XData.
     DataColumns = horzcat(1:XDataCol-1,XDataCol+1:NumOfColumns);
     
+    % Initialises the arrays.
     TemplateArray = zeros(bins,NumOfDataColumns);
     TemplateErrors = zeros(bins,NumOfDataColumns);
     
@@ -65,13 +59,13 @@ function [TemplateArray,TemplateErrors,N] = NanoMachineImport_bin_func(debugON,w
         Bin_Data = mean(DataInBin,1,'omitnan');
         Bin_StdDev = std(DataInBin,w,1,'omitnan');
         Bin_Error = Bin_StdDev/realsqrt(N(BinNum));
-        
+                
         % This adds the data into the 3D array.
         TemplateArray(BinNum,:) = Bin_Data;
-        TemplateErrors(BinNum,:) = Bin_Error;
+        TemplateErrors(BinNum,:) = Bin_Error; % I don't believe this is used outside of this function!
         message = sprintf('%s - Indent %d/%d - Bin %d/%d\nTime Left ~ %.3g secs',msg_struct.IDName,msg_struct.currIndNum,msg_struct.NumOfIndents,BinNum,bins,msg_struct.RemainingTime);
         waitbar((msg_struct.currIndNum-1)/msg_struct.NumOfIndents,msg_struct.ProgressBar,message);
-        clear Bin_Data Bin_StdDev Bin_Error DataInBin
+        clear Bin_Data Bin_StdDev Bin_Error DataInBin message
     end
     
     if debugON == true

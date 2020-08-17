@@ -6,6 +6,8 @@ function [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file)
 
     filename = string(fullfile(path,file));
 
+    % If this is a double, then it's an empty double as no files were
+    % selected.
     if isa(file,'double') == true
         PopUp = errordlg('No file selected! Code terminated!');
         NoOfSamples = nan; fileNameList = nan;
@@ -13,13 +15,13 @@ function [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file)
         return
     end
 
-    % If one file is chosen its file type will be char and not cell, hence
+    % If 1 file is chosen its file type will be char and not cell, hence
     % this makes it into a 1x1 cell if true.
     if isa(file,'char') == true
         file = cellstr(file);
     end
 
-    file = string(file);
+    file = string(file); % Converts cell to string array
     NoOfSamples = size(file,2);
 
     % This prepares a string array to be filled in with the full filenames

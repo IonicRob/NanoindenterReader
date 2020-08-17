@@ -25,21 +25,24 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
         end
     end
     
+    % This gives the user the option of where to save the data or not to
+    % save the data at all.
     quest = sprintf('Where to save %s?:',FileIDName);
     [SavingLocYN,cd_save] = NanoSaveFolderPref(quest,cd_init,cd_load);
 
-
+    % This is an automatically generated unique name for this data.
     DataSaveName = sprintf('%s_%s_Data.mat',FileIDName,SaveTime);
     
     if strcmp(SavingLocYN,'do not save data') == false
+        % This occurs when the user says they want to save data.
         fprintf('Save destination = "%s"\n',cd_save);
-        cd(cd_save);
+        cd(cd_save); % Changed current directory to the save location.
         quest = sprintf('Choose how to save the data for %s?:',FileIDName);
         pbnts = {'Auto','Semi-auto','Manual'};
         [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
         switch SavingData
             case 'auto'
-                disp('Saving the processed nanoindentation data');
+                disp('AUTOMATICALLY Saving the processed nanoindentation data');
                 save(DataSaveName,'dataToSave','-mat');
                 fprintf('Auto-saved "%s" as "%s"\n',FileIDName,DataSaveName);
             case 'semi-auto'
@@ -47,12 +50,13 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
                 % uisave brings up a dialogue box for saving the data, it allows
                 % the option to change the name that the data is saved as.
                 uisave('dataToSave',DataSaveName);
-                fprintf('Semi-auto-saved "%s" as "%s"\n',FileIDName,DataSaveName);
+                fprintf('Semi-auto-saved "%s"\n',FileIDName);
             case 'manual'
                 disp('YOU have to manually save the data!');
         end
-        cd(cd_init);
+        cd(cd_init); % Changed current directory back to the original one.
     else
+        % This occurs when the user says they DO NOT want to save data.
         disp('You have chosen not to save the data, hence YOU have to manually save the data!');
     end
 

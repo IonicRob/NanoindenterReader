@@ -3,16 +3,19 @@
 % Agilent CSM or QS output.
 
 function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,filename,changeBBsStruct,w,XDataCol,NoYCols,mode,varNames,waitTime)
+    %% Setting Up
     title = 'NanoMachineImport_Agilent - MainProcess Function';
-    [ProgressBar,SpreadSheetName] = NanoMachineImport_first_stage(title,file);
+    fprintf('%s: Started!\n',title);
+    
+    SpreadSheetName = file; % This becomes the ID for the loaded sample.
+    ProgressBar = waitbar(0,sprintf('%s: Setting up',SpreadSheetName)); % Creates the progress bar.
     
     % This accesses the data produced from changeBinBoundaries
     DepthLimit = changeBBsStruct.DepthLimit;
     bin_boundaries = changeBBsStruct.bin_boundaries;
     bin_midpoints = changeBBsStruct.bin_midpoints;
     bins = changeBBsStruct.bins;
-    message = sprintf('%s: Set-up - Bin Calculations Imported',SpreadSheetName);
-    waitbar(1/3,ProgressBar,message);
+    waitbar(1/3,ProgressBar,sprintf('%s: Set-up - Bin Calculations Imported',SpreadSheetName));
     
     % This is a list of all of the sheet names for that spreadsheet file.
     SheetNames = sheetnames(filename);
@@ -20,17 +23,13 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
     % This accesses the first sheet named 'Results'
     opts_Sheet1 = detectImportOptions(filename,'Sheet','Results','FileType','spreadsheet','PreserveVariableNames',true);
     Table_Sheet1 = readtable(filename,opts_Sheet1);
-    % This then calculates the number of indents from which it will cycle
-    % through, hence if you delete entries on here and their associated
-    % sheets it will be fine
-    NumOfIndents = size(Table_Sheet1,1)-3;
-    message = sprintf('%s: Set-up - "Results" Analysed',SpreadSheetName);
-    waitbar(2/3,ProgressBar,message);
+    NumOfIndents = size(Table_Sheet1,1)-3; % Calcs the num of indents to cycle through cycle based on the 'Results' sheet.
+    clear opts_Sheet1 Table_Sheet1
+    waitbar(2/3,ProgressBar,sprintf('%s: Set-up - "Results" Analysed',SpreadSheetName));
 
 
-    
-    % This is a 3D array which will store the force, time, HCS, H, and E
-    % data, with the 3rd axis being for each indent.
+    % This is a 3D array which will store the non-XData-data, with the
+    % 3rd axis being for each indent.
     PenultimateArray = zeros(bins,NoYCols,NumOfIndents);
     PenultimateErrors = zeros(bins,NoYCols,NumOfIndents);
     
@@ -40,20 +39,18 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
         arraySizeDebug(PenultimateErrors,'PenultimateErrors');
     end
     
-    message = sprintf('%s: Set-up Complete!',SpreadSheetName);
-    waitbar(1,ProgressBar,message);
-    
-    indProTime = nan(NumOfIndents,1);
+    waitbar(1,ProgressBar,sprintf('%s: Set-up Complete!',SpreadSheetName));
+    %% Indent loop    
+    indProTime = nan(NumOfIndents,1); % Initialises the time for an indent to be analysed.
     
     % This for loop cycles for each indent
     for currIndNum = 1:NumOfIndents
-        tic
+        tic % starts timer
+        
         % This updates the progress bar with required details.
         [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,SpreadSheetName);
-
-        % There are 4 sheets auto-generated that aren't indent data, then
-        % it works from right to left, hence minus the indent number.
-        SheetNum = 4+NumOfIndents-currIndNum;
+        
+        SheetNum = 4+NumOfIndents-currIndNum; % There are 4 sheets auto-generated that aren't indent data, then it works from right to left, hence minus the indent number.
         
         if debugON == true
             fprintf("Current indent number %d/%d\n",currIndNum,NumOfIndents);
@@ -61,21 +58,20 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
         end
         
         % Preparing for NanoMachineImport_bin_func
-        SheetName = SheetNames(SheetNum);
-        Table_Current = TablePrep(filename,SheetName,mode);
+        Table_Current = TablePrep(filename,SheetNames(SheetNum),mode);
         BinStruct = struct('XDataCol',XDataCol,'bins',bins,'bin_boundaries',bin_boundaries);
         msg_struct = struct('IDName',SpreadSheetName,'currIndNum',currIndNum,'NumOfIndents',NumOfIndents,'RemainingTime',RemainingTime,'ProgressBar',ProgressBar);
 
-        % This obtains arrays which are binned for both the value and
-        % standard dev., along with producing an array of the bin counts.
-        [TemplateArray,TemplateErrors,N] = NanoMachineImport_bin_func(debugON,w,Table_Current,BinStruct,msg_struct);
-        PenultimateArray(:,:,currIndNum) = TemplateArray;
-        PenultimateErrors(:,:,currIndNum) = TemplateErrors;
-        clearvars('TemplateArray','TemplateErrors');
+        % This adds arrays which are binned for both the value and
+        % standard dev., and produces an array of the bin counts.
+        [PenultimateArray(:,:,currIndNum),PenultimateErrors(:,:,currIndNum),N] = NanoImport_Agilent_bin_func(debugON,w,Table_Current,BinStruct,msg_struct);
         
-        indProTime(currIndNum,1) = toc;
+        indProTime(currIndNum,1) = toc; % Stops timer and stores time taken
     end
+    clear indProTime currIndNum BinStruct msg_struct Table_Current SheetNum indAvgTime RemainingTime
     waitbar(1,ProgressBar,'Finished working on indents!');
+    %% Exporting
+    waitbar(1,ProgressBar,'Exporting sample data into a structure!');
     
     % This gets the penultimate array data and the other essential
     % information to produce an output structure containing all of the
@@ -85,7 +81,7 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
     fprintf('%s: Completed!\n',title);
 end
 
-%% Nested Functions
+%% InBuilt Functions
     
 function Table_Current = TablePrep(filename,SheetName,mode)
     
@@ -98,6 +94,7 @@ function Table_Current = TablePrep(filename,SheetName,mode)
         NoColsOfData = 7;
     end
 
+    % Imports the data as a double array.
     Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','Range',SheetRange,'NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',NoColsOfData);
 
     if strcmp(mode,'csm') == true
