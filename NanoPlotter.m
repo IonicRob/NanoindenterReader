@@ -4,7 +4,7 @@
 function NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
 %% Basic Set-up
 % The comments for what the below does can be found pretty much in
-% NanoDataCreater!
+% NanoImport!
 
 clc;
 dlg_title = 'NanoPlotter';
