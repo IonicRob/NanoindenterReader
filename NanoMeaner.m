@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
+function DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
     title = 'NanoMeaner';
     fprintf('%s: Started!\n',title);        
     
@@ -31,7 +31,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % code which gives the precise range that the user clicked or typed as
     % an output.
     RangeSelectionMode = questdlg('Choose how to select the range to mean across',title,'Graphically','Typed','Typed');
-    AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode);
+    AimedRange = AimedRangeProducer(DataTypeToMean,title,RangeSelectionMode);
     
     % Initialises this variable
     TotalNumOfSamples = 0;
@@ -147,9 +147,8 @@ end
 
 % This allows the user to choose a range over which the data will be aimed
 % to mean across as close to the range as possible.
-function AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode)
+function AimedRange = AimedRangeProducer(DataTypeToMean,title,RangeSelectionMode)
     % Opens up the figure to choose the range with
-%     figure(figHandles(DataTypeToMean));
     figure(DataTypeToMean);
     
     message1 = string(["Select the lower bound","Select the upper bound"]);

@@ -67,7 +67,7 @@ switch ToMeanOrNotToMean
     case 'Yes'
         % This is the function that does all of the work in meaning the
         % data within a range.
-        DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,cd_init,debugON,cd_load);
+        DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,cd_init,debugON,cd_load);
     otherwise
         disp('You have decided not to find the mean value within a range...');
         % Setting DataIDName to nan will then make NanoDataSave ask for
