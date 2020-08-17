@@ -1,8 +1,8 @@
 %% NanoMachineImport_final_stage
 
-function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime)
+function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames)
 %% Final Averaging for Indent Array
-    
+
     % FinalArray averages along the 3rd axis, which is then effectively
     % averaging accross the indents, and if there are NaN's it ignores
     % those.
@@ -26,27 +26,32 @@ function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,
 %% Table Creating
     % The below is used for clearer code.
     XData = bin_midpoints;
-    Load =  FinalArray(:,1);
-    Time =  FinalArray(:,2);
-    HCS =   FinalArray(:,3);
-    H =     FinalArray(:,4);
-    E =     FinalArray(:,5);
     
-    % Creates a table so that the data can be easily analysed.
-    varNames = {'Depth (nm)','Load (mN)','Time (s)','HCS (N/m)','Hardness (GPa)','Modulus (GPa)'};
-    OutPut.FinalTable = table(XData,Load,Time,HCS,H,E,'VariableNames',varNames);
+    % This sets up the table
+    TableSize = [size(FinalArray,1),size(FinalArray,2)+1];
+    varTypes    = cell(1,TableSize(2));
+    varTypes(:) = {'double'};
+    
+    % Happens if the lengths don't match
+    if TableSize(2) ~= length(varNames)
+        OutPut = nan;
+        DLG = errordlg(sprintf('Sizes not compatible!\nNum of table cols = %d\nNum of variable names = %d\n',TableSize(2),length(varNames)));
+        waitfor(DLG);
+        disp(varNames);
+        return
+    end
+    
+    % If the lengths do match then this happens, it creates the table.
+    FinalTable = table('Size',TableSize,'VariableTypes',varTypes,'VariableNames',varNames);
+    FinalTable(:,1) = table(XData);
+    for column = 1:TableSize(2)-1
+        FinalTable(:,column+1) = table(FinalArray(:,column));
+    end
+    OutPut.FinalTable = FinalTable;
     
 %% Plotting the data briefly if debug is on
+
     % This plots all of the data for waitTime seconds before closing the figures
-    if debugON == true
-        for i=1:5
-            DebugFigure = figure();
-            plot(XData,FinalArray(:,i));
-            title(varNames{i+1});
-            xlabel(varNames{1});
-            pause(waitTime);
-            close(DebugFigure);
-        end
-    end
+    QuickPlotData(XData,FinalArray,varNames,waitTime)
     
 end

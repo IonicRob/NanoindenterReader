@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON)
+function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
     title = 'NanoMeaner';
     fprintf('%s: Started!\n',title);        
     
@@ -96,7 +96,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     end
     
     quest = {'Save the range mean table data?:'};
-    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init);
+    [SavingLocYN,LOC_save] = NanoSaveFolderPref(quest,LOC_init,LOC_load);
     if ~strcmp(SavingLocYN,'do not save data')
         % Change current directory to where the user selected to save the
         % data.
@@ -135,14 +135,15 @@ end
 function DataTypeToMean = ChooseDataToPlotAmmended(DataTypeList,PlotDataTypes)
     PromptString = {'Select what data to find depth range values:','Only one can be selected at once.'};
     [DataTypeToMean,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',DataTypeList);
-    DataTypeToMean = PlotDataTypes(DataTypeToMean);
+    DataTypeToMean = PlotDataTypes(DataTypeToMean); % Gives the column number (/figure number) for the data to mean.
 end
 
 % This allows the user to choose a range over which the data will be aimed
 % to mean across as close to the range as possible.
 function AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode)
     % Opens up the figure to choose the range with
-    figure(figHandles(DataTypeToMean));
+%     figure(figHandles(DataTypeToMean));
+    figure(DataTypeToMean);
     
     message1 = string(["Select the lower bound","Select the upper bound"]);
     message2 = string(["Type the lower bound","Type the upper bound"]);
