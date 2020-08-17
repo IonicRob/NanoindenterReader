@@ -135,15 +135,14 @@ end
 function DataTypeToMean = ChooseDataToPlotAmmended(DataTypeList,PlotDataTypes)
     PromptString = {'Select what data to find depth range values:','Only one can be selected at once.'};
     [DataTypeToMean,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',DataTypeList);
-    DataTypeToMean = PlotDataTypes(DataTypeToMean); % Gives the column number (/figure number) for the data to mean.
+    DataTypeToMean = PlotDataTypes(DataTypeToMean); % Gives the column number (/figure number)
 end
 
 % This allows the user to choose a range over which the data will be aimed
 % to mean across as close to the range as possible.
 function AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode)
     % Opens up the figure to choose the range with
-%     figure(figHandles(DataTypeToMean));
-    figure(DataTypeToMean);
+    figure(figHandles(DataTypeToMean));
     
     message1 = string(["Select the lower bound","Select the upper bound"]);
     message2 = string(["Type the lower bound","Type the upper bound"]);

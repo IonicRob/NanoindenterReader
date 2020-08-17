@@ -14,11 +14,6 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
 %     DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
     PlotDataTypes = ChooseDataToPlot(DataTypeList);
     
-    if debugON == true
-        disp('PlotDataTypes = ...');
-        disp(PlotDataTypes);
-    end
-    
     for i = 1:length(DataTypeList)
         currDataType = DataTypeList{i};
         split_DataTypeList = split(currDataType);
@@ -60,9 +55,9 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
             currErrorData = ErrorData(:,:,i);
 
             if strcmp(FormatAnswer,'Line + Error Region') == true || strcmp(FormatAnswer,'Line') == true
-                Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth);
+                Color = LinePlotting(currValueData,PlotDataTypes,figHandles,LegendName,linewidth);
             elseif strcmp(FormatAnswer,'Line + Error Bars') == true
-                ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
+                ErroBarPlotting(currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
             else
                 errordlg(sprintf('Plotting mode does not match with any known options!\n = "%s"',FormatAnswer));
                 return
@@ -71,7 +66,7 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
             if strcmp(FormatAnswer,'Line + Error Region') == true
                 % This pre-processes the input data so that it can plot the error
                 % region using the output data (EFP).
-                ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
+                ErrorRegionPlotting(currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
             end
             
             clear LegendName currValueData currErrorData Color
@@ -81,9 +76,23 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
     end
     figureFormatting(PlotDataTypes,figHandles,Y_Axis_Labels,X_Axis_Label,legendLocation)
     
-    figureClosing(debugON,DataTypeList,PlotDataTypes);
-    
-
+    for i = 1:length(DataTypeList)
+        [~,col] = find(PlotDataTypes==i);
+        
+        if debugON == true && isempty(col) == false
+            fprintf('Curr. i = %d\ncol = %d',i,col);
+        end
+        
+        % This happens if col is empty, which should happen if that figure
+        % option was not chosen, and hence it closes that figure.
+        if isempty(col)
+            if debugON == true
+                fprintf('col = empty\nClosing figure handle:...\n');
+                disp()
+            end
+            close(figHandles(i))
+        end
+    end
     
     fprintf('NanoPlotter_main: Complete!\n\n');
 end
@@ -95,40 +104,37 @@ function PlotDataTypes = ChooseDataToPlot(DataTypeList)
     [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
 end
 
-function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth)
+function Color = LinePlotting(currValueData,PlotDataTypes,figHandles,LegendName,linewidth)
     NumberOfPlots = length(PlotDataTypes);
-    for j = 1:NumberOfPlots
-        currDataNum = PlotDataTypes(j); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
+    for i = 1:NumberOfPlots
+        currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
+        currFigHandle = figHandles(currDataNum);
+        figure(currFigHandle)
         columnNum = currDataNum+1;
         Data = plot(currValueData(:,1),currValueData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth);
         Color = Data.Color;
         hold on
-        if debugON == true
-            fprintf('LinePlotting\nj = %d\tcurrDataNum =  %d\nCurrent figure handle:...\n',j,currDataNum)
-        end
     end
 end
 
-function ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
+function ErroBarPlotting(currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
+        currFigHandle = figHandles(currDataNum);
+        figure(currFigHandle)
         columnNum = currDataNum+1;
         errorbar(currValueData(:,1),currValueData(:,columnNum),currErrorData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth,'CapSize',capsize);
         hold on
     end
 end
 
-function ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
+function ErrorRegionPlotting(currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
+        currFigHandle = figHandles(currDataNum);
+        figure(currFigHandle)
         columnNum = currDataNum+1;
         XData = currValueData(:,1);
         YData = currValueData(:,columnNum);
@@ -144,8 +150,8 @@ function figureFormatting(PlotDataTypes,figHandles,DataTypeList,X_Axis_Label,leg
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
+        currFigHandle = figHandles(currDataNum);
+        figure(currFigHandle)
         ylabel(DataTypeList(currDataNum));
         xlabel(X_Axis_Label);
         YLIM = ylim();
@@ -195,20 +201,4 @@ function [EFP,OutArray] = PatchPreProcessorFunc(XData,YData,YErr)
     EFP.X = [out_X;flipud(out_X)];
     EFP.Y = [out_Val+out_Err;flipud(out_Val-out_Err)];
     fprintf('PatchPreProcessorFunc: Complete!\n\n');
-end
-
-function figureClosing(debugON,DataTypeList,PlotDataTypes)
-    for FigNum = 1:length(DataTypeList)
-        [~,col] = find(PlotDataTypes==FigNum);
-        
-        if debugON == true && isempty(col) == false
-            fprintf('FigNum = %d\ncol = %d\n',FigNum,col);
-        end
-        
-        % This happens if col is empty, which should happen if that figure
-        % option was not chosen, and hence it closes that figure.
-        if isempty(col)
-            close(figure(FigNum))
-        end
-    end
 end

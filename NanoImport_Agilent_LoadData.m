@@ -68,6 +68,7 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
         
         indProTime(currIndNum,1) = toc; % Stops timer and stores time taken
     end
+    
     clear indProTime currIndNum BinStruct msg_struct Table_Current SheetNum indAvgTime RemainingTime
     waitbar(1,ProgressBar,'Finished working on indents!');
     %% Exporting

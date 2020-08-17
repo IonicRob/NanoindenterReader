@@ -33,7 +33,7 @@ clearvars('-except','SettingsDone');
 % Setting this to true allows debugging messages to pop up within the
 % command window following code that is run.
 % It is useful to turn on to see what the code is doing.
-debugON = false;
+debugON = true;
 
 % To change pre-defined settings in the code change the values within this
 % function. There are options to change certain settings within the latter
@@ -55,8 +55,8 @@ switch CreateOrLoad
     case 'Import'
         NanoImport(debugON,DefaultDlg,USS)
     case 'Plot'
-        ChooseSaveType = true;
-        DfltImgFmtType = 'png';
+        ChooseSaveType = false;
+        DfltImgFmtType = 'png'; % 'tiffn'
         NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
     otherwise
         errordlg('No action was chosen! Code will terminate!')
