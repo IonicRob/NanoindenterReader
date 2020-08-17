@@ -15,6 +15,8 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % for figures that were chosen not to plot by the user.
     AmmendedDataTypeList = DataTypeList(PlotDataTypes(:));
     
+    NumOfYData = length(DataTypeList);
+    
     % This chooses what figure to base the range on.
     DataTypeToMean = ChooseDataToPlotAmmended(AmmendedDataTypeList,PlotDataTypes);
     
@@ -56,12 +58,17 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % containing the value and the error of the associated data.
     TableVarNames = {'Data ID Name','Sample Name','Depth Range Used (nm)'};
     TableVarNames = horzcat(TableVarNames,DataTypeList);
-    TableVarTypes = {'string','string','string','string','string','string','string','string'};
+    ThreeStrings = {'string','string','string'};
+    TableVarTypes_add    = cell(1,NumOfYData);
+    TableVarTypes_add(:) = {'string'};
+    TableVarTypes = horzcat(ThreeStrings,TableVarTypes_add{:});
     NanoMeanerTable = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     
     % This creates two more tables which show the process data rather than
     % the abbreviated forms in the above in NanoMeanerTable.
-    TableVarTypes = {'string','string','string','double','double','double','double','double'};
+    TableVarTypes_add    = cell(1,NumOfYData);
+    TableVarTypes_add(:) = {'double'};
+    TableVarTypes = horzcat(ThreeStrings,TableVarTypes_add);
     NanoMeanerTableValues = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     NanoMeanerTableErrors = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     
@@ -233,9 +240,7 @@ function Table = AddingDataIntoTable(Table,CurrRowPosition,CurrentIDName,currSam
     Table(CurrRowPosition,1) = table(CurrentIDName);
     Table(CurrRowPosition,2) = table(currSampleName);
     Table(CurrRowPosition,3) = table(RangeUsedString);
-    Table(CurrRowPosition,4) = table(ValuesAndErrors(1));
-    Table(CurrRowPosition,5) = table(ValuesAndErrors(2));
-    Table(CurrRowPosition,6) = table(ValuesAndErrors(3));
-    Table(CurrRowPosition,7) = table(ValuesAndErrors(4));
-    Table(CurrRowPosition,8) = table(ValuesAndErrors(5));
+    for i = 1:length(ValuesAndErrors)
+        Table(CurrRowPosition,3+i) = table(ValuesAndErrors(i));
+    end
 end
