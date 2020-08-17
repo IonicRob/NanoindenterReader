@@ -30,7 +30,7 @@ clc
 close all
 
 % Clears all variables except for SettingsDone in NanoImport.
-clearvars('-except','SettingsDone');
+clearvars('-except','SettingsDone','ImageFormatType');
 
 % The below clears all of the 'Do Not Show This Again' for
 % preference diaglogue boxes.
