@@ -140,8 +140,8 @@ end
         
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
-        [D2Array_loading,D2Errors_loading,N_loading] = NanoMachineImport_bin_func_QS(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
-        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [D2Array_loading,D2Errors_loading,N_loading] = NanoImport_QS_Bruker_bin_func(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoImport_QS_Bruker_bin_func(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
 
         % These arrays are flipped upside down because they are ordered in
         % increasing bins, but the midpoints are descending.

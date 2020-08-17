@@ -1,9 +1,9 @@
-%% NanoMachineImport_bin_func
+%% NanoImport_QS_Bruker_bin_func
 %
-% This differs from the similar function as this does not update the
-% penultimate array but gets the 2D part for just that current indent.
+% This bin function is designed around the quasi-static method for Bruker
+% nanoindentors.
 
-function [OutPut2DArray,OutPut2DErrors,N] = NanoMachineImport_bin_func_QS(w,Table_Current,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
+function [OutPut2DArray,OutPut2DErrors,N] = NanoImport_QS_Bruker_bin_func(w,Table_Current,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime)
 %%
 
     % If the input indent depth but and the bin boundaries are not vectors
