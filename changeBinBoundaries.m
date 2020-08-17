@@ -1,6 +1,6 @@
 %% changeBinBoundaries
 
-function [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,OverwriteTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol)
+function [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,InvalidChoiceTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol)
     title = 'changeBinBoundaries';
 
     [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints] = MaxDepthObtainer(NoOfSamples,fileNameList,mode,bins,XDataCol);
@@ -13,11 +13,15 @@ function [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,b
                 disp('Boundaries are being changed manually!');
                 [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins] = changeBinBoundaries_Main(DepthLimit,binWidth,bins);
 %                 [DepthLimit,bin_boundaries,binWidth] = changeBinBoundaries_Main(DepthLimit,binWidth,bins);
-                OverwriteTF = true;
+                InvalidChoiceTF = false;
             case 'No'
                 % Data already generated above by MaxDepthObtainer!
                 disp('Boundaries are unchanged from standard...');
-                OverwriteTF = false;
+                InvalidChoiceTF = false;
+            otherwise
+                InvalidChoiceTF = true;
+                [DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints] = setOutputsToNaN;
+                return
         end
 %     end
 

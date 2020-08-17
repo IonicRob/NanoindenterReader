@@ -4,7 +4,7 @@
 function NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
 %% Basic Set-up
 % The comments for what the below does can be found pretty much in
-% NanoDataCreater!
+% NanoImport!
 
 clc;
 dlg_title = 'NanoPlotter';
@@ -67,7 +67,7 @@ switch ToMeanOrNotToMean
     case 'Yes'
         % This is the function that does all of the work in meaning the
         % data within a range.
-        DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,cd_init,debugON,cd_load);
+        DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,cd_init,debugON,cd_load);
     otherwise
         disp('You have decided not to find the mean value within a range...');
         % Setting DataIDName to nan will then make NanoDataSave ask for

@@ -53,13 +53,21 @@ end
 % Below uses the file and path data above and produces it into the correct
 % format, along with producing other useful data.
 [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file);
+if isnan(NoOfSamples) == true
+    return
+end
 
 % The below has an initial look through all of the indent depth values
 % reached for each indent in each sample, finds the maximum and generates
 % the appropriate values dependent on that. It also allows the user to
 % change these values!
-[DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,OverwriteTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol);
-changeBBsStruct = struct('OverwriteTF',OverwriteTF,'DepthLimit',DepthLimit,'bin_boundaries',bin_boundaries,'binWidth',binWidth,'bin_boundaries_text',bin_boundaries_text,'bin_midpoints',bin_midpoints,'bins',bins);
+[DepthLimit,bin_boundaries,binWidth,bin_boundaries_text,bin_midpoints,bins,InvalidChoiceTF] = changeBinBoundaries(debugON,NoOfSamples,fileNameList,bins,mode,XDataCol);
+changeBBsStruct = struct('InvalidChoiceTF',InvalidChoiceTF,'DepthLimit',DepthLimit,'bin_boundaries',bin_boundaries,'binWidth',binWidth,'bin_boundaries_text',bin_boundaries_text,'bin_midpoints',bin_midpoints,'bins',bins);
+if InvalidChoiceTF == true
+    DLG = errordlg('You exited the changing bin boundaries option!',dlg_title);
+    waitfor(DLG);
+    return
+end
 if debugON == true
     fprintf('DepthLimit = %d \t binWidth = %d \t Num of bins = %d \t \n',DepthLimit,binWidth,bins);
     disp('bin_boundaries_text...'); disp(bin_boundaries_text);
@@ -99,8 +107,9 @@ end
 
 %% Final Stage
 
+method_name = string(sprintf('Agilent-%s',upper(mode)));
 % This saves the data as a structure called dataToSave.
-[~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
+[~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,path);
 
 fprintf('%s: Completed!\n\n',dlg_title);
 end

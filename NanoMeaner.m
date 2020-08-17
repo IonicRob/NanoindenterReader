@@ -1,7 +1,7 @@
 %% NanoMeaner
 % By Robert J Scales
 
-function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
+function DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,LOC_init,debugON,LOC_load)
     title = 'NanoMeaner';
     fprintf('%s: Started!\n',title);        
     
@@ -14,6 +14,8 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % This is the ammended list, as there's no point choosing the range
     % for figures that were chosen not to plot by the user.
     AmmendedDataTypeList = DataTypeList(PlotDataTypes(:));
+    
+    NumOfYData = length(DataTypeList);
     
     % This chooses what figure to base the range on.
     DataTypeToMean = ChooseDataToPlotAmmended(AmmendedDataTypeList,PlotDataTypes);
@@ -29,7 +31,7 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % code which gives the precise range that the user clicked or typed as
     % an output.
     RangeSelectionMode = questdlg('Choose how to select the range to mean across',title,'Graphically','Typed','Typed');
-    AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode);
+    AimedRange = AimedRangeProducer(DataTypeToMean,title,RangeSelectionMode);
     
     % Initialises this variable
     TotalNumOfSamples = 0;
@@ -56,12 +58,17 @@ function DataIDName = NanoMeaner(FileStuctures,figHandles,DataTypeList,PlotDataT
     % containing the value and the error of the associated data.
     TableVarNames = {'Data ID Name','Sample Name','Depth Range Used (nm)'};
     TableVarNames = horzcat(TableVarNames,DataTypeList);
-    TableVarTypes = {'string','string','string','string','string','string','string','string'};
+    ThreeStrings = {'string','string','string'};
+    TableVarTypes_add    = cell(1,NumOfYData);
+    TableVarTypes_add(:) = {'string'};
+    TableVarTypes = horzcat(ThreeStrings,TableVarTypes_add{:});
     NanoMeanerTable = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     
     % This creates two more tables which show the process data rather than
     % the abbreviated forms in the above in NanoMeanerTable.
-    TableVarTypes = {'string','string','string','double','double','double','double','double'};
+    TableVarTypes_add    = cell(1,NumOfYData);
+    TableVarTypes_add(:) = {'double'};
+    TableVarTypes = horzcat(ThreeStrings,TableVarTypes_add);
     NanoMeanerTableValues = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     NanoMeanerTableErrors = table('Size',[TotalNumOfSamples,length(TableVarNames)],'VariableTypes',TableVarTypes,'VariableNames',TableVarNames);
     
@@ -140,9 +147,8 @@ end
 
 % This allows the user to choose a range over which the data will be aimed
 % to mean across as close to the range as possible.
-function AimedRange = AimedRangeProducer(figHandles,DataTypeToMean,title,RangeSelectionMode)
+function AimedRange = AimedRangeProducer(DataTypeToMean,title,RangeSelectionMode)
     % Opens up the figure to choose the range with
-%     figure(figHandles(DataTypeToMean));
     figure(DataTypeToMean);
     
     message1 = string(["Select the lower bound","Select the upper bound"]);
@@ -233,9 +239,7 @@ function Table = AddingDataIntoTable(Table,CurrRowPosition,CurrentIDName,currSam
     Table(CurrRowPosition,1) = table(CurrentIDName);
     Table(CurrRowPosition,2) = table(currSampleName);
     Table(CurrRowPosition,3) = table(RangeUsedString);
-    Table(CurrRowPosition,4) = table(ValuesAndErrors(1));
-    Table(CurrRowPosition,5) = table(ValuesAndErrors(2));
-    Table(CurrRowPosition,6) = table(ValuesAndErrors(3));
-    Table(CurrRowPosition,7) = table(ValuesAndErrors(4));
-    Table(CurrRowPosition,8) = table(ValuesAndErrors(5));
+    for i = 1:length(ValuesAndErrors)
+        Table(CurrRowPosition,3+i) = table(ValuesAndErrors(i));
+    end
 end

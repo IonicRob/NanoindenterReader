@@ -123,7 +123,7 @@ end
     for currIndNum = 1:NumOfIndents
         tic
         % This updates the progress bar with required details.
-        [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
+        [indAvgTime,RemainingTime] = NanoImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
         
         if debugON == true
             fprintf("Current indent number = %d\n",currIndNum);
@@ -140,8 +140,8 @@ end
         
         % This obtains arrays which are binned for both the value and
         % standard dev., along with producing an array of the bin counts.
-        [D2Array_loading,D2Errors_loading,N_loading] = NanoMachineImport_bin_func_QS(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
-        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoMachineImport_bin_func_QS(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [D2Array_loading,D2Errors_loading,N_loading] = NanoImport_QS_Bruker_bin_func(w,Table_Current_loading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
+        [D2Array_unloading,D2Errors_unloading,N_unloading] = NanoImport_QS_Bruker_bin_func(w,Table_Current_unloading,bins,bin_boundaries,TemplateArray,TemplateErrors,ProgressBar,IDName,currIndNum,NumOfIndents,RemainingTime);
 
         % These arrays are flipped upside down because they are ordered in
         % increasing bins, but the midpoints are descending.
@@ -163,7 +163,7 @@ end
     % This gets the penultimate array data and the other essential
     % information to produce an output structure containing all of the
     % information from the indent text files imported.
-    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
+    OutPut = NanoImport_OutPutGen(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
     close(ProgressBar);
     
     ValueData = OutPut.FinalArray;
@@ -173,7 +173,8 @@ end
         ErrorData = OutPut.FinalErrors;
     end
     
-    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,cd_init,path);
+    method_name = "Bruker-QS";
+    [~] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,path);
 
     
     fprintf('%s: Complete!\n',title);

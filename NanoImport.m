@@ -25,7 +25,7 @@ function NanoImport(debugON,DefaultDlg,USS)
     switch SettingsViaDialogueYN
         case 'dialogue boxes'
             % The below function is used to make the main script shorter.
-            [bins,w,ErrorPlotMode] = FormattingChoosing(DefaultDlg);
+            [bins,w,ErrorPlotMode] = FormattingChoosing(DefaultDlg,USS);
             % This creates 'SettingsDone' i.e. settings have been chosen.
             SettingsDone = true;
         case 'use scipt settings'
@@ -36,6 +36,9 @@ function NanoImport(debugON,DefaultDlg,USS)
             SettingsDone = true;
         case 'Use Previously Used Settings'
             disp('Using previously used settings!');
+        otherwise
+            PopUpMsg('Unexpected SettingsViaDialogueYN error!!',dlg_title,'Error','Exit')
+            return
     end
 
     if debugON
@@ -48,7 +51,6 @@ function NanoImport(debugON,DefaultDlg,USS)
 
 
     %% Main Data Processing Section
-
         MethodList = {'CSM Agilent','QS Agilent','QS Bruker','Other','Help'};
         PromptString = {'Select the type method/system to import:','Only one type can be selected at a time.'};
         [ChosenMethod,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',MethodList);
@@ -56,15 +58,16 @@ function NanoImport(debugON,DefaultDlg,USS)
             ChosenMethod = MethodList{ChosenMethod};
         else
             msg = {'No method/system was chosen!','Code will terminate!'};
-            PopUpMsg(msg,title,'Error','Exit')
+            PopUpMsg(msg,dlg_title,'Error','Exit')
+            return
         end
 
         if strcmp(ChosenMethod,'Help')
             msg = {'Method selection list legend:','CSM = Continuous Stiffness Measurement','QS = Quasi-standard Trapezoid'};
-            PopUpMsg(msg,title,'Help','Restart')
+            PopUpMsg(msg,dlg_title,'Help','Exit')
         elseif strcmp(ChosenMethod,'Other')
             msg = {'Sorry but this method/system is not yet supported by this code!','Help contribute to the this code GitHub to add support for your method/system!'};
-            PopUpMsg(msg,title,'Error','Exit')
+            PopUpMsg(msg,dlg_title,'Error','Exit')
         else
             fprintf('Valid method chosen!\n\n');
         end
@@ -92,12 +95,17 @@ end
 
 
 % This allows the user to choose the settings via dialogue boxes.
-function [bins,w,ErrorPlotMode] = FormattingChoosing(DefaultDlg)
+function [bins,w,ErrorPlotMode] = FormattingChoosing(DefaultDlg,USS)
     dlg_title = 'FormattingChoosing';
     
     % This is the number of bins which it will group the data along the
     % x-axis with.
     bins = str2double(inputdlg({'How many bins do you want to use'},dlg_title,[1,50]));
+    
+    if isempty(bins) == true
+        bins = USS.bins;
+        PopUpMsg(sprintf('No bin input was made, hence the default value of %d was chosen!',bins),dlg_title,'Warn','Nothing');
+    end
 
     % This is chosen for all other inputs apart from if no input is
     % chosen, as the data could then be later analysed and it
@@ -107,18 +115,24 @@ function [bins,w,ErrorPlotMode] = FormattingChoosing(DefaultDlg)
     % and standard error, see Matlab documentation on std.
     ErrorPlotMode = questdlg('Choose to show standard error or standard deviation:',dlg_title,'Standard error','Standard deviation',DefaultDlg.ErrorPlotMode);
 
+    if strcmp(ErrorPlotMode,'') == true
+        ErrorPlotMode = USS.ErrorPlotMode;
+        PopUpMsg(sprintf('No error choice was made, hence default of "%s" was chosen!',ErrorPlotMode),dlg_title,'Warn','Nothing');
+    end
+    
     % This chooses whether the standard deviation or standard error
     % will be plotted as the y-uncertainties in the graphs.
     StdDevWeightingMode = questdlg('Choose the standard deviation weighting to use:',dlg_title,'N-1','N','Using bin errors',DefaultDlg.StdDevWeightingMode);
-    % This is the standard deviation weighting mode.
-    w = wGenerator(StdDevWeightingMode);
 
-    if strcmp(ErrorPlotMode,'') == true
-        warndlg('No error choice was made, hence default will be shown!');
-    end
     if strcmp(StdDevWeightingMode,'') == true
-        warndlg('No weighting choice was made, hence default will be chosen!');
+        w = USS.w;
+        PopUpMsg(sprintf('No weighting choice was made, hence default of %d was chosen!',w),dlg_title,'Warn','Nothing');
+    else
+        % This is the standard deviation weighting mode.
+        w = wGenerator(StdDevWeightingMode);
     end
+    
+
 end
 
 function PopUpMsg(msg,title,ErrorOrHelp,ExitOrRestart)
@@ -127,6 +141,8 @@ function PopUpMsg(msg,title,ErrorOrHelp,ExitOrRestart)
             PopUp = errordlg(msg,title);
         case 'Help'
             PopUp = helpdlg(msg,title);
+        case 'Warn'
+            PopUp = warndlg(msg,title);
     end
     switch ExitOrRestart
         case 'Exit'
@@ -134,7 +150,9 @@ function PopUpMsg(msg,title,ErrorOrHelp,ExitOrRestart)
             return
         case 'Restart'
             waitfor(PopUp);
-            NanoMachineImport
+            NanoImport % This doesn't save the data known previously!
+        case 'Nothing'
+            waitfor(PopUp);
     end
 end
 
