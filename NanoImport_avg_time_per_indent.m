@@ -1,6 +1,6 @@
-%% NanoMachineImport_avg_time_per_indent
+%% NanoImport_avg_time_per_indent
 
-function [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName)
+function [indAvgTime,RemainingTime] = NanoImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName)
 
     % The below two indAvgTime can be used to find the average time per
     % indent, currently the moving mean average is being use.

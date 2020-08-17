@@ -48,7 +48,7 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
         tic % starts timer
         
         % This updates the progress bar with required details.
-        [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,SpreadSheetName);
+        [indAvgTime,RemainingTime] = NanoImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,SpreadSheetName);
         
         SheetNum = 4+NumOfIndents-currIndNum; % There are 4 sheets auto-generated that aren't indent data, then it works from right to left, hence minus the indent number.
         

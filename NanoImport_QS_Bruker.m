@@ -123,7 +123,7 @@ end
     for currIndNum = 1:NumOfIndents
         tic
         % This updates the progress bar with required details.
-        [indAvgTime,RemainingTime] = NanoMachineImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
+        [indAvgTime,RemainingTime] = NanoImport_avg_time_per_indent(ProgressBar,indProTime,currIndNum,NumOfIndents,IDName);
         
         if debugON == true
             fprintf("Current indent number = %d\n",currIndNum);
