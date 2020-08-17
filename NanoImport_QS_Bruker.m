@@ -163,7 +163,7 @@ end
     % This gets the penultimate array data and the other essential
     % information to produce an output structure containing all of the
     % information from the indent text files imported.
-    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
+    OutPut = NanoImport_OutPutGen(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
     close(ProgressBar);
     
     ValueData = OutPut.FinalArray;

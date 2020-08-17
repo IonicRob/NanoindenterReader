@@ -53,6 +53,9 @@ end
 % Below uses the file and path data above and produces it into the correct
 % format, along with producing other useful data.
 [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file);
+if isnan(NoOfSamples) == true
+    return
+end
 
 % The below has an initial look through all of the indent depth values
 % reached for each indent in each sample, finds the maximum and generates

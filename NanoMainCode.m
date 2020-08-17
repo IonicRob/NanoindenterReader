@@ -106,7 +106,7 @@ function [PlotAesthetics,DefaultDlg,USS] = SettingsFunction
     % Script Settings - These are selected if you select 'Use Scipt Settings'!
     % This a good way to have the same settings for data analysis for
     % consistency, also speeds up time!
-    USS.bins = 50;
+    USS.bins = 100;
     USS.FormatAnswer = 'Line + Error Region';
     USS.w = 0;
     USS.ErrorPlotMode = 'Standard deviation';

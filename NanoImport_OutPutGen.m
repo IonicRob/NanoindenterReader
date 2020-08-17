@@ -1,6 +1,6 @@
-%% NanoMachineImport_final_stage
+%% NanoImport_OutPutGen
 
-function OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames)
+function OutPut = NanoImport_OutPutGen(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames)
 %% Final Averaging for Indent Array
 
     % FinalArray averages along the 3rd axis, which is then effectively

@@ -77,7 +77,7 @@ function [OutPut,SpreadSheetName] = NanoImport_Agilent_LoadData(debugON,file,fil
     % This gets the penultimate array data and the other essential
     % information to produce an output structure containing all of the
     % information from the imported Excel spreadsheet.
-    OutPut = NanoMachineImport_final_stage(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
+    OutPut = NanoImport_OutPutGen(PenultimateArray,w,NumOfIndents,bin_midpoints,bin_boundaries,DepthLimit,N,debugON,waitTime,varNames);
     close(ProgressBar);
     fprintf('%s: Completed!\n',title);
 end
