@@ -1,4 +1,6 @@
 # NanoindenterReader
+![What](https://github.com/IonicRob/NanoindenterReader/blob/master/Nanoindenter%20Logo%20Pic%2001.png)
+## Introduction
 
 This code has designed to read the exported spreadsheet data produced by the the Agilent nanoindenters and the txt files produced by Bruker nanoindenters. It has multiple functions which should all be kept within the same folder.
 
