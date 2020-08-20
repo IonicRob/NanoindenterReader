@@ -1,13 +1,18 @@
 # NanoindenterReader
 
 This code has designed to read the exported spreadsheet data produced by the the Agilent nanoindenters and the txt files produced by Bruker nanoindenters. It has multiple functions which should all be kept within the same folder.
+
 The code to run is named **NanoMainCode**, the other codes are needed but should ideally not be run as they will be called upon when necessary and require data from the code they are being called from.
+
+I am still new to GitHub so any advice/feedback would be much appreciated!
 
 
 ## Acknowledgements & IP
 
 This code is written first hand (i.e. not used any code by others not involved with the development of this code), and unless stated by comments within the code assume that Robert J Scales wrote the code.
-**Clear acknowledgement** of the use of this code, whether that be by using it for data analysis, or by the modification or merging of this code with another, would be very much appreciated as many hours have been put into writing this code.
+
+**Clear acknowledgement** of the use of this code, whether that be by using it for data analysis, or by the modification or merging of this code with another, would be very much appreciated as many hours have been put into writing this code. **Also**, following the **MIT license** agreement (contained within this repository) **is mandatory**.
+
 Contacting the *IonicRob* GitHub account for any of the aforementioned uses would be appreciated to see how the code will be used in research and in development of other work!
 
 
