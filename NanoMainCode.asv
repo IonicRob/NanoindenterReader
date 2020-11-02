@@ -73,8 +73,7 @@ switch FunctionToUse
         DfltImgFmtType = 'png'; % 'tiffn'
         NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
     case 'Analyse'
-        DfltImgFmtType = 'png'; % 'tiffn'
-        NanoAnalyse(debugON,PlotAesthetics,DfltImgFmtType);
+        NanoAnalyse(debugON,PlotAesthetics);
     case 'Export'
         NanoExport2Spreadsheet(debugON);
     otherwise

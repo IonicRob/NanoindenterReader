@@ -11,7 +11,7 @@ function NanoImport_QS_Agilent(debugON)
 dlg_title = 'NanoImport_QS_Agilent';
 fprintf('%s: Started!\n\n',dlg_title);
 
-testTF = true;
+testTF = false;
 
 if testTF == true
     clc;
