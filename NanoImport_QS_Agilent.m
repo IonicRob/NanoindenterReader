@@ -43,7 +43,7 @@ end
 
 % This gets the file data for the sample.
 [file,path] = uigetfile({'*.xlsx;*.xls'},'Select QS Agilent nanoindentation Excel file to import:','MultiSelect','off');
-
+cd_load = path;
 % Below uses the file and path data above and produces it into the correct
 % format, along with producing other useful data.
 [NoOfSamples,fileNameList,file] = getFileCompiler(debugON,path,file);
@@ -85,14 +85,18 @@ NumOfTests = length(ListOfSheets);
 
 SheetNum = ListOfSheets(1);
 %Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','Range',SheetRange,'NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',NoColsOfData);
-% Calibration_Sheet = readtable(filename,'Sheet',SheetNum,'FileType','spreadsheet');
-Calibration_ColNames = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet').VariableNames;
+%  Calibration_Sheet = readtable(filename,'Sheet',SheetNum,'FileType','spreadsheet');
+Calibration_ColNamesA = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',0).VariableNames;
+Calibration_ColNamesB = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',1).VariableNames;
+Calibration_ColNames = join([Calibration_ColNamesA;Calibration_ColNamesB],1);
+
 PromptString = 'Select the indent displacement:';
 DispCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
 PromptString = 'Select the indent load:';
 LoadCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
+fprintf('Calibrated importing data so the indent depth is col-%d, and indent load is col-%d...\n',DispCol,LoadCol);
 
-for i = 1:length(ListOfSheets)
+for i = 1:NumOfTests
     SheetNum = ListOfSheets(i);
     Current_Matrix = readmatrix(filename,'Sheet',SheetNum,'FileType','spreadsheet');
 
@@ -104,12 +108,17 @@ for i = 1:length(ListOfSheets)
     
     LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
     hold on
-    % Gradient = gradient(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
-    % plot(Current_Matrix(:,DispCol),Gradient);
+    
+    PlotGradientsON = false;
+    
+    if PlotGradientsON == true
+        % Gradient = gradient(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
+        % plot(Current_Matrix(:,DispCol),Gradient);
+        % Gradient2 = gradient(Gradient);
+        plot(Gradient,'-x');
+    end
+    
     Gradient = gradient(Current_Matrix(:,DispCol));
-    % Gradient2 = gradient(Gradient);
-    plot(Gradient,'-x');
-
     Recommended_StartPoint = find(0<Gradient & Gradient<0.1,1); % Finds the first point for which the displacement is first increasing by 0.1 units per row, this is to counteract if it goes reverse.
     %Recommended_StartPoint = find(Current_Matrix(:,LoadCol)>0.06,1); % Finds the point for which the load is first above 0.06 mN.
     hold on
@@ -118,18 +127,30 @@ for i = 1:length(ListOfSheets)
 
     Question = 'Want to use the recommended origin point?';
     Question_title = 'Clipping The Data';
-    UseAutoClipON = questdlg(Question,Question_title,'Yes','No','Yes');
+    UseAutoClipON = questdlg(Question,Question_title,'Yes','Manually Choose','Leave Alone','Yes');
 
-    if strcmp(UseAutoClipON,'No') == true
-        [x_point,~] = ginput(1);
-        [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
-        disp(Recommended_StartPoint);
+%     if strcmp(UseAutoClipON,'Manually Choose') == true
+%         [x_point,~] = ginput(1);
+%         [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
+%         disp(Recommended_StartPoint);
+%     end
+    
+    switch UseAutoClipON
+        case 'Manually Choose'
+            [x_point,~] = ginput(1);
+            [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
+            %disp(Recommended_StartPoint);
+            Rec_StartPoint_XY = [Current_Matrix(Recommended_StartPoint,1),Current_Matrix(Recommended_StartPoint,2)];
+        case 'Leave Alone'
+            Recommended_StartPoint = 1;
+            Rec_StartPoint_XY = [0,0];
+        case 'Yes'
+            Rec_StartPoint_XY = [Current_Matrix(Recommended_StartPoint,1),Current_Matrix(Recommended_StartPoint,2)];
     end
     
     delete(LoadDisp);
     delete(StartPoint_Plot);
     
-    Rec_StartPoint_XY = [Current_Matrix(Recommended_StartPoint,1),Current_Matrix(Recommended_StartPoint,2)];
     Current_Matrix = Current_Matrix(Recommended_StartPoint:end,:);
     Current_Matrix(:,1) = Current_Matrix(:,1)-Rec_StartPoint_XY(1);
     Current_Matrix(:,2) = Current_Matrix(:,2)-Rec_StartPoint_XY(2);
@@ -137,6 +158,30 @@ for i = 1:length(ListOfSheets)
     LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
     hold on
     
+    ylabel(Calibration_ColNames(LoadCol));
+    xlabel(Calibration_ColNames(DispCol));
+    
+    ValueData = Current_Matrix;
+    ErrorData = nan(size(Current_Matrix));
+    w = 0;
+    ErrorPlotMode = 'Standard deviation';
+    varNames = string(Calibration_ColNames);
+    XDataCol = DispCol;
+    method_name = 'Agilent-QS';
+    
+    % Saving Section
+    [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,cd_load); % dataToSave
+    
+end
+%%
+
+fprintf('%s: Completed!\n\n',dlg_title);
+end
+
+%% InBuilt Functions
+
+%% Development Plan
+
     % Things left to do
     % #1 Comment on what I have done
     % #1A Try find peaks to see if the last +ve peak will be reasonably
@@ -147,13 +192,3 @@ for i = 1:length(ListOfSheets)
     % Once that is done, have a feature so that the data can be analysed.
     % Like what Chris Magazzeni wanted and also for what I want to do
     % (obtain stiffness).
-    
-end
-%%
-
-fprintf('%s: Completed!\n\n',dlg_title);
-end
-
-%% InBuilt Functions
-
-

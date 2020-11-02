@@ -91,6 +91,7 @@ PromptString = 'Select the indent displacement:';
 DispCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
 PromptString = 'Select the indent load:';
 LoadCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
+fprintf('Calibrated importing data so the indent depth is col-%d, and indent load is col-%d...\n',DispCol,LoadCol);
 
 for i = 1:length(ListOfSheets)
     SheetNum = ListOfSheets(i);
@@ -104,11 +105,16 @@ for i = 1:length(ListOfSheets)
     
     LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
     hold on
-    % Gradient = gradient(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
-    % plot(Current_Matrix(:,DispCol),Gradient);
-    Gradient = gradient(Current_Matrix(:,DispCol));
-    % Gradient2 = gradient(Gradient);
-    % plot(Gradient,'-x');
+    
+    PlotGradientsON = false;
+    
+    if PlotGradientsON == true
+        % Gradient = gradient(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
+        % plot(Current_Matrix(:,DispCol),Gradient);
+        Gradient = gradient(Current_Matrix(:,DispCol));
+        % Gradient2 = gradient(Gradient);
+        plot(Gradient,'-x');
+    end
 
     Recommended_StartPoint = find(0<Gradient & Gradient<0.1,1); % Finds the first point for which the displacement is first increasing by 0.1 units per row, this is to counteract if it goes reverse.
     %Recommended_StartPoint = find(Current_Matrix(:,LoadCol)>0.06,1); % Finds the point for which the load is first above 0.06 mN.
@@ -118,30 +124,42 @@ for i = 1:length(ListOfSheets)
 
     Question = 'Want to use the recommended origin point?';
     Question_title = 'Clipping The Data';
-    UseAutoClipON = questdlg(Question,Question_title,'Yes','No','Yes');
+    UseAutoClipON = questdlg(Question,Question_title,'Yes','Manually Choose','Leave Alone','Yes');
 
-    if strcmp(UseAutoClipON,'No') == true
-        [x_point,~] = ginput(1);
-        [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
-        disp(Recommended_StartPoint);
+%     if strcmp(UseAutoClipON,'Manually Choose') == true
+%         [x_point,~] = ginput(1);
+%         [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
+%         disp(Recommended_StartPoint);
+%     end
+    
+    switch UseAutoClipON
+        case 'Manually Choose'
+            [x_point,~] = ginput(1);
+            [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
+            %disp(Recommended_StartPoint);
+            Rec_StartPoint_XY = [Current_Matrix(Recommended_StartPoint,1),Current_Matrix(Recommended_StartPoint,2)];
+        case 'Leave Alone'
+            Recommended_StartPoint = 1;
+            Rec_StartPoint_XY = [0,0];
     end
     
     delete(LoadDisp);
     delete(StartPoint_Plot);
     
     Current_Matrix = Current_Matrix(Recommended_StartPoint:end,:);
-    Current_Matrix(:,1) = Current_Matrix(:,1)-Current_Matrix(Recommended_StartPoint,1);
-    Current_Matrix(:,2) = Current_Matrix(:,2)-Current_Matrix(Recommended_StartPoint,2);
+    Current_Matrix(:,1) = Current_Matrix(:,1)-Rec_StartPoint_XY(1);
+    Current_Matrix(:,2) = Current_Matrix(:,2)-Rec_StartPoint_XY(2);
     
     LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
     hold on
     
-    % Things left to do
-    % #1 Comment on what I have done
-    % #2 Add in a feature so that it converts the data from the sheets into
-    % Matlab table form and then those can be saved individually for each
-    % indent.
-    % Once that is done, have a feature so that the data can be analysed.
+    PrepSaveData.ValueData = Current_Matrix;
+    PrepSaveData.ErrorData = nan(size(Current_Matrix));
+    PrepSaveData.SampleNameList = 'Test';
+    PrepSaveData.DataIDName = 'Test';
+    PrepSaveData.w = 0;
+    PrepSaveData.ErrorPlotMode
+
     
 end
 %%
@@ -151,4 +169,15 @@ end
 
 %% InBuilt Functions
 
+%% Development Plan
 
+    % Things left to do
+    % #1 Comment on what I have done
+    % #1A Try find peaks to see if the last +ve peak will be reasonably
+    % found and if that gives good results.
+    % #2 Add in a feature so that it converts the data from the sheets into
+    % Matlab table form and then those can be saved individually for each
+    % indent.
+    % Once that is done, have a feature so that the data can be analysed.
+    % Like what Chris Magazzeni wanted and also for what I want to do
+    % (obtain stiffness).
