@@ -80,7 +80,7 @@ function NanoImport(debugON,DefaultDlg,USS)
                 NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
             case 'QS Agilent'
                 mode = 'qs';
-                NanoImport_Agilent_General(debugON,bins,w,ErrorPlotMode,mode)
+                NanoImport_QS_Agilent(debugON,bins,w,ErrorPlotMode,mode)
             case 'QS Bruker'
                 NanoImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
         end
