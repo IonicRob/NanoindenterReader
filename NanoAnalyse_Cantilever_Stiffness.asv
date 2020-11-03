@@ -94,11 +94,7 @@ for i = 1:length(FileStuctures)
     xlabel(curr_varNames(DispCol));
     ylabel(curr_varNames(LoadCol));
     if strcmp(StackOnSameFig,'No')
-        title(sprintf('Stiffness Analysis for %s',curr_DataIDName));
-    else
-        title(sprintf('Stiffness Analysis'));
-        set(gcf,'name','StiffnessAnalysis')
-    end
+    title(sprintf('Stiffness Analysis for %s',curr_DataIDName));
     legend('Location','NorthWest');
 end
 
