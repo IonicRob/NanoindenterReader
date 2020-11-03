@@ -51,8 +51,10 @@ for i = 1:length(FileStuctures)
     fprintf('Calibrated importing data so the indent depth is col-%d, and indent load is col-%d...\n',DispCol,LoadCol);
     
     LoadDispPlot = plot(curr_VarData(:,DispCol),curr_VarData(:,LoadCol),'-x','DisplayName',curr_DataIDName);
-    legend('Location','NorthWest');
     hold on
+    xlabel(curr_varNames(DispCol));
+    ylabel(curr_varNames(LoadCol));
+    legend('Location','NorthWest');
     GradInRangeData = GradientObtainer(curr_VarData(:,DispCol),curr_VarData(:,LoadCol),curr_DataIDName,true,20/100);
 %     [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,curr_FileStuctures,PlotAesthetics,FormatAnswer);
 % 
@@ -60,10 +62,6 @@ for i = 1:length(FileStuctures)
 %         disp('Post figure handles are:');
 %         disp(figHandles);
 %     end
-
-    xlabel(curr_varNames(DispCol));
-    ylabel(curr_varNames(LoadCol));
-    legend('Location','NorthWest');
 end
 
 %% Saving Results
@@ -127,7 +125,7 @@ function [GradInRangeData] = GradientObtainer(Disp,Load,Name,DebugON,PrcntCutOff
         PositiveSlopePlot = plot(GradInRangeData.LinFit_Pos.fit,'-g');
         Pos_GradAndError = sprintf('a = %.2e +- %.2e ',GradInRangeData.LinFit_Pos.a,GradInRangeData.LinFit_Pos.a_StdDev);
         Pos_YIntAndError = sprintf('b = %.2e +- %.2e ',GradInRangeData.LinFit_Pos.b,GradInRangeData.LinFit_Pos.b_StdDev);
-        PositiveSlopePlot.DisplayName = sprintf('%s- +ve Slope\n%s\n%s',Name,Pos_GradAndError,Pos_YIntAndError);
+        PositiveSlopePlot.DisplayName = sprintf('%s- +ve Slope\n%s\n%s',Name,);
     end
 end
 

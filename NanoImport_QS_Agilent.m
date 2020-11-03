@@ -72,7 +72,9 @@ for CurrFileNum=1:NoOfFiles
     Calibration_ColNamesA = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',0).VariableNames;
     Calibration_ColNamesB = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',1).VariableNames;
     Calibration_ColNames = join([Calibration_ColNamesA;Calibration_ColNamesB],1);
-    clear Calibration_ColNamesA Calibration_ColNamesB
+    if debugON == false
+        clear Calibration_ColNamesA Calibration_ColNamesB
+    end
 
     PromptString = 'Select the indent displacement:';
     DispCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
@@ -88,6 +90,10 @@ for CurrFileNum=1:NoOfFiles
         xlabel(Calibration_ColNames(DispCol));
         title(sprintf('Current Sample: %s',CurrIndentName));
         Current_Matrix = readmatrix(filename,'Sheet',SheetNum,'FileType','spreadsheet');
+        if debugON == true
+        	Current_sheet = readtable(filename,'Sheet',SheetNum,'FileType','spreadsheet');
+        end
+        
 
         if isnan(Current_Matrix) == true
             DLG = warndlg(sprintf('This sheet called "%s" is empty, and hence will be skipped...',CurrIndentName));

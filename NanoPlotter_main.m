@@ -49,6 +49,7 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
         fprintf('Currently working on %s\n',CurrentIDName);
         
         ValueData = FileStuctures{FileNum,1}.ValueData;
+        XDataCol = FileStuctures{FileNum,1}.XDataCol;
         ErrorData = FileStuctures{FileNum,1}.ErrorData;
         NumberOfSamples = size(ValueData,3);
         
@@ -58,11 +59,16 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
             LegendName = SampleNameList(i);
             currValueData = ValueData(:,:,i);
             currErrorData = ErrorData(:,:,i);
+            
+            if debugON == true
+                disp('Current Value Data = ...')
+                disp(currValueData);
+            end
 
             if strcmp(FormatAnswer,'Line + Error Region') == true || strcmp(FormatAnswer,'Line') == true
-                Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth);
+                Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth,XDataCol);
             elseif strcmp(FormatAnswer,'Line + Error Bars') == true
-                ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
+                ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize,XDataCol)
             else
                 errordlg(sprintf('Plotting mode does not match with any known options!\n = "%s"',FormatAnswer));
                 return
@@ -71,7 +77,7 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
             if strcmp(FormatAnswer,'Line + Error Region') == true
                 % This pre-processes the input data so that it can plot the error
                 % region using the output data (EFP).
-                ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
+                ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha,XDataCol)
             end
             
             clear LegendName currValueData currErrorData Color
@@ -95,14 +101,14 @@ function PlotDataTypes = ChooseDataToPlot(DataTypeList)
     [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
 end
 
-function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth)
+function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth,XDataCol)
     NumberOfPlots = length(PlotDataTypes);
     for j = 1:NumberOfPlots
         currDataNum = PlotDataTypes(j); % e.g. = 3 if HCS selected
 %         currFigHandle = figHandles(currDataNum);
         figure(currDataNum)
         columnNum = currDataNum+1;
-        Data = plot(currValueData(:,1),currValueData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth);
+        Data = plot(currValueData(:,XDataCol),currValueData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth);
         Color = Data.Color;
         hold on
         if debugON == true
@@ -111,26 +117,26 @@ function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,Leg
     end
 end
 
-function ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize)
+function ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize,XDataCol)
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
 %         currFigHandle = figHandles(currDataNum);
         figure(currDataNum)
         columnNum = currDataNum+1;
-        errorbar(currValueData(:,1),currValueData(:,columnNum),currErrorData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth,'CapSize',capsize);
+        errorbar(currValueData(:,XDataCol),currValueData(:,columnNum),currErrorData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth,'CapSize',capsize);
         hold on
     end
 end
 
-function ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha)
+function ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha,XDataCol)
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
 %         currFigHandle = figHandles(currDataNum);
         figure(currDataNum)
         columnNum = currDataNum+1;
-        XData = currValueData(:,1);
+        XData = currValueData(:,XDataCol);
         YData = currValueData(:,columnNum);
         YErr = currErrorData(:,columnNum);
         [EFP,~] = PatchPreProcessorFunc(XData,YData,YErr);
