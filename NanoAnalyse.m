@@ -4,7 +4,7 @@
 function NanoAnalyse(debugON,PlotAesthetics,DfltImgFmtType)
 code_title = 'NanoAnalyse';
 
-ListOfFunctions = {'Cantilever_Analysis','Exit'}; 
+ListOfFunctions = {'NanoAnalyse_Cantilever_Stiffness','Exit'}; 
 PromptString = 'What analysis method do you want to do?';
 FunctionToUse = listdlg('ListString',ListOfFunctions,'PromptString',PromptString,'SelectionMode','single','Name',code_title);
 
@@ -17,9 +17,9 @@ end
 FunctionToUse = ListOfFunctions{FunctionToUse};
 
 switch FunctionToUse
-    case 'Cantilever_Analysis'
+    case 'NanoAnalyse_Cantilever_Stiffness'
         FormatAnswer = 'Line';
-        NanoAnalyse_Cantilever_Analysis(debugON,PlotAesthetics,FormatAnswer,DfltImgFmtType)
+        NanoAnalyse_Cantilever_Stiffness(debugON,PlotAesthetics,FormatAnswer,DfltImgFmtType)
     otherwise
         errordlg('No action was chosen! Code will terminate...')
         return
