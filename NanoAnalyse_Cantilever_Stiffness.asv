@@ -39,11 +39,15 @@ close all
 
 figure('Name',curr_DataIDName,'WindowState','Maximized');
 
-Question = 'Do you want to plot on the same figure?';
+Question = sprintf('Do you want to plot on the same figure?\n(WARNING choose only if x-y units for all data!)');
 Question_title = 'Stacking Data';
 StackOnSameFig = questdlg(Question,Question_title,'Yes','No','No');
 
-for i = 1:length(FileStuctures)
+NumOfFiles = length(FileStuctures);
+
+ExportPreStruct = cell(1,NumOfFiles);
+
+for i = 1:NumOfFiles
     
     fprintf('\n\n%s: Working on file "%s"...\n%s\n',code_title,FileStuctures{i}.DataIDName,'----------------------------------');
     curr_FileStuctures = FileStuctures{i};
@@ -63,6 +67,7 @@ for i = 1:length(FileStuctures)
     legend('Location','NorthWest');
     hold on
     OutputStruct = GradientObtainer(curr_VarData(:,DispCol),curr_VarData(:,LoadCol),curr_DataIDName,false,[0.2,0.05]);
+    
 %     [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,curr_FileStuctures,PlotAesthetics,FormatAnswer);
 % 
 %     if debugON == true
@@ -94,8 +99,26 @@ for i = 1:length(FileStuctures)
     xlabel(curr_varNames(DispCol));
     ylabel(curr_varNames(LoadCol));
     if strcmp(StackOnSameFig,'No')
-    title(sprintf('Stiffness Analysis for %s',curr_DataIDName));
+        title(sprintf('Stiffness Analysis for %s',curr_DataIDName));
+    else
+        title(sprintf('Stiffness Analysis'));
+        set(gcf,'name','StiffnessAnalysis')
+    end
     legend('Location','NorthWest');
+    
+    XUnit = split(curr_varNames(DispCol),' ');
+    XUnit = XUnit(2);
+    OutputStruct.XUnit = XUnit;
+    
+    YUnit = split(curr_varNames(LoadCol),' ');
+    YUnit = YUnit(2);
+    OutputStruct.YUnit = YUnit;
+    
+    OutputStruct.GradUnit = sprintf('%s/%s',YUnit,XUnit);
+    
+    OutputStruct.Name = curr_DataIDName;
+    ExportPreStruct{i} = OutputStruct;
+    
 end
 
 %% Saving Results
@@ -111,10 +134,82 @@ DataIDName = '';
 % The output data is mainly useful for NanoDataCreater but not for this.
 NanoPlotterFigureSaver(debugON,DfltImgFmtType,LoadingMode,cd_init,DataIDName,cd_load);
 
+% GradUnitList = strings(1,NumOfFiles);
+% for i = 1:NumOfFiles
+%     CurrentStuct = ExportPreStruct{i};
+%     GradUnitList(i) = CurrentStuct.GradUnit;
+% end
+
+% RowNameList = strings(1,NumOfFiles*4);
+% for i = 1:NumOfFiles
+%     CurrentStuct = ExportPreStruct{i};
+%     FirstRowNum = (4*(i-1))+1;
+%     RowNameList(FirstRowNum) = sprintf('%s Stiffness (%s)',CurrentStuct.Name,CurrentStuct.GradUnit);
+%     RowNameList(FirstRowNum+1) = sprintf('%s Stiffness StdDev (%s)',CurrentStuct.Name,CurrentStuct.GradUnit);
+%     RowNameList(FirstRowNum+2) = sprintf('%s Y-Intercept (%s)',CurrentStuct.Name,CurrentStuct.YUnit);
+%     RowNameList(FirstRowNum+3) = sprintf('%s Y-Intercept StdDev (%s)',CurrentStuct.Name,CurrentStuct.YUnit);
+% end
+
+
+quest = sprintf('Export this data to an Excel spreadsheet?:');
+[SavingLocYN,cd_save] = NanoSaveFolderPref(quest,cd_init,cd_load);
+if ~strcmp(SavingLocYN,'do not save data')
+    
+    IDName = string(inputdlg('Type in the name of this session:','Choosing IDName value'));
+    
+    NameList = strings(1,NumOfFiles*2);
+    for i=1:NumOfFiles
+        Num = (2*i)-1;
+        CurrentStuct = ExportPreStruct{i};
+        NameList(Num) = sprintf('%s - Loading',CurrentStuct.Name);
+        NameList(Num+1) = sprintf('%s - UnLoading',CurrentStuct.Name);
+    end
+    
+    RowNameList = {'Stiffness (mN/nm)','Stiffness StdDev (mN/nm)','y-intercept (mN)','y-intercept StdDev (mN)'};
+    
+    varNames = horzcat("Fit Parameter",NameList);
+    varTypes = cell(1,(NumOfFiles*2));
+    varTypes(1) = {}
+    varTypes(2:end) = {'double'};
+    ExportTable = table('Size',[length(RowNameList),length(varNames)],'VariableTypes',varTypes,'VariableNames',varNames,'RowNames',RowNameList);
+    
+    for i = 1:NumOfFiles
+        Num = (2*i)-1;
+        CurrentStuct = ExportPreStruct{i};
+        ExportTable(1,Num) = table(CurrentStuct.LinFit_Pos.a);
+        ExportTable(2,Num) = table(CurrentStuct.LinFit_Pos.a_StdDev);
+        ExportTable(3,Num) = table(CurrentStuct.LinFit_Pos.b);
+        ExportTable(4,Num) = table(CurrentStuct.LinFit_Pos.b_StdDev);
+        ExportTable(1,Num+1) = table(CurrentStuct.LinFit_Neg.a);
+        ExportTable(2,Num+1) = table(CurrentStuct.LinFit_Neg.a_StdDev);
+        ExportTable(3,Num+1) = table(CurrentStuct.LinFit_Neg.b);
+        ExportTable(4,Num+1) = table(CurrentStuct.LinFit_Neg.b_StdDev);
+    end
+    
+
+    cd(cd_save);
+    SaveTime = datestr(datetime('now'),'yyyy-mm-dd-HH-MM');
+    SpreadSheetSaveName = sprintf('%s_%s_Export_Cantilever_Stiffness.xlsx',IDName,SaveTime);
+    writetable(ExportTable,SpreadSheetSaveName,'Sheet','StiffnessData');
+    fprintf('Auto-exported "%s"!\n',IDName);
+    cd(cd_init)
+else
+    fprintf('The data for session was not exported!\n');
+
+end
 
 fprintf('%s: Completed!\n\n',code_title);
 
 end
+
+
+
+
+
+
+
+
+
 
 %% Internal Function
 
