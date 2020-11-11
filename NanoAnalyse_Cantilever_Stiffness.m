@@ -12,7 +12,7 @@ waitTime = 2; % The time spent on each figure.
     % This sets the marker size for all text in all of the figures!
     set(0,'defaultLineMarkerSize',12);
 
-testTF = true;
+testTF = false;
 if testTF == true
     clc;
     WARN = warndlg(sprintf('Currently in testing mode for %s!!',code_title));
@@ -37,7 +37,7 @@ end
 
 close all
 
-figure('Name',curr_DataIDName,'WindowState','Maximized');
+figure('Name','Main','WindowState','Maximized');
 
 Question = sprintf('Do you want to plot on the same figure?\n(WARNING choose only if x-y units for all data!)');
 Question_title = 'Stacking Data';

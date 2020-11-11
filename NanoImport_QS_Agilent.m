@@ -106,6 +106,10 @@ for CurrFileNum=1:NoOfFiles
         LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,LoadCol));
         hold on
         
+        ylabel(Calibration_ColNames(LoadCol));
+        xlabel(Calibration_ColNames(DispCol));
+        title(sprintf('Current Sample: %s',CurrIndentName));
+        
         AnalyseIndentYN = questdlg('Do you want to analyse this indent?','Choosing Data','Yes','No','Yes');
         if strcmp(AnalyseIndentYN,'No') == true
             close(ImportingFigure);
@@ -165,6 +169,8 @@ for CurrFileNum=1:NoOfFiles
         xlabel(Calibration_ColNames(DispCol));
         title(sprintf('Current Sample: %s',CurrIndentName));
 
+%         wait(0.5);
+        
         ValueData = Current_Matrix;
         ErrorData = nan(size(Current_Matrix));
         w = 0;
@@ -172,7 +178,7 @@ for CurrFileNum=1:NoOfFiles
         varNames = string(Calibration_ColNames);
         XDataCol = DispCol;
         method_name = 'Agilent-QS';
-
+        
         % Saving Section
         [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,cd_load); % dataToSave
         close(ImportingFigure);
