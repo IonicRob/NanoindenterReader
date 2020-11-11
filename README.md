@@ -23,10 +23,15 @@ Current List of Actions in NanoMainCode:
 ### Import
 Used for converting the valid exported data from the nanoindenter into a more suitable format (a structure) which can then be used by the other actions.
 The saved structure contains the data for the mean average and the respective errors of the data outputted from the nanoindenter, which is achieved by binning each indent within a given depth range, and then meaning that data with all of the other indents.
+For Quasi-Static Agilent data select QS Agilent. 
 
 ### Plot
 Most of the analysis and the plotting of figures for showing results is done within this code. It loads ".mat" files produced by *Import*, thus allowing for analysis and plotting across multiple files loaded.
 The code then can plot the selected data you would like to plot against indent depth for the files loaded, and it can then find the mean values of the data within a chosen indent depth range, and it can save each of the figures in the desired saving format.
+
+### Analyse
+This section contains methods to perform more complex analyses on your data e.g. as finding the stiffness of cantilevers in quasi-static testing. It's primary function is not to plot the data, as this should primarily be done in **Plot**, but there are features to save the figures which then show how the data has been analysed.
+Also, there is usually an export to Excel for the final results of the analyses, which is different from **Export** (see below).
 
 ### Export
 This uses the structure ".mat" files produced by *Import* and converts them into a readable Excel spreadsheet. This can then be used for further analysis not available in this code yet, to share results with those who do not have Matlab, or can't be bothered to use this code to use the *Plot* action. Ideally, the two former points should be the primary reason for using this action and not the latter!
