@@ -53,7 +53,7 @@ code_title = 'Nanoindentation Main Code';
 
 %% Main Section
 
-ListOfFunctions = {'Import','Plot','Export'}; 
+ListOfFunctions = {'Import','Plot','Analyse','Export'}; 
 PromptString = 'What action do you want to do?';
 FunctionToUse = listdlg('ListString',ListOfFunctions,'PromptString',PromptString,'SelectionMode','single','Name',code_title);
 
@@ -72,6 +72,9 @@ switch FunctionToUse
         ChooseSaveType = false;
         DfltImgFmtType = 'png'; % 'tiffn'
         NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
+    case 'Analyse'
+        DfltImgFmtType = 'png'; % 'tiffn'
+        NanoAnalyse(debugON,PlotAesthetics,DfltImgFmtType);
     case 'Export'
         NanoExport2Spreadsheet(debugON);
     otherwise
