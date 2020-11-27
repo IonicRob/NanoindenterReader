@@ -123,7 +123,9 @@ function Table_Current = TablePrep(filename,SheetName,mode)
         NoColsOfData = 7;
     end
 
-    Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','Range',SheetRange,'NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',NoColsOfData);
+    Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','OutputType','double','ExpectedNumVariables',NoColsOfData);
+    disp(Table_Sheet);
+%     Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','Range',SheetRange,'NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',NoColsOfData);
 
     if strcmp(mode,'csm') == true
         % We look at H and E so that we can neglect data for which
