@@ -1,7 +1,7 @@
 %% NanoImport_General
 % By Robert J Scales
 
-function NanoImport_General(debugON)
+function NanoImport_General
 %% Starting Up
 dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
@@ -10,20 +10,21 @@ fprintf('%s: Started!\n\n',dlg_title);
 
 if SelfTF == true
     debugON = true;
+else
+    debugON = false;
 end
 
-testTF = false;
-
 cd_init = cd; % Initial directory
-waitTime = 2; % The time spent on each figure.
 
+filter = {'*.xlsx;*.xls','Agilent Files (*.xlsx, *.xls)';'*.txt','Bruker Files (*.txt)'};
+% filter = {'*.xlsx;*.xls;*.txt','Valid Data Types (*.xlsx, *.xls, *.txt)';'*.xlsx;*.xls','Agilent Files (*.xlsx, *.xls)';'*.txt','Bruker Files (*.txt)'};
 
 % This gets the file data for the sample.
-[file,path] = uigetfile({'*.xlsx;*.xls'},'Select QS Agilent nanoindentation Excel file to import:','MultiSelect','on');
+[file,path,fileTypeIndex] = uigetfile(filter,'Select file(s) to import:','MultiSelect','on');
 cd_load = path;
 % Below uses the file and path data above and produces it into the correct
 % format, along with producing other useful data.
-[NoOfFiles,fileNameList,file] = getFileCompiler(debugON,path,file);
+[NoOfFiles,fileNameList,files] = getFileCompiler(debugON,path,file);
 if isnan(NoOfFiles) == true
     return
 end
@@ -31,62 +32,38 @@ end
 %% Importing Data 01
 
 for CurrFileNum=1:NoOfFiles
-    filename = fileNameList(CurrFileNum,2);
-    SheetNames = sheetnames(filename); % This is a list of all of the sheet names for that spreadsheet file.
-
-    % This accesses the first sheet named 'Results' otherwise 
-    try
-        opts_Sheet1 = detectImportOptions(filename,'Sheet','Results','FileType','spreadsheet','PreserveVariableNames',true);
-        Table_Sheet1 = readtable(filename,opts_Sheet1);
-        AutoLoadingON = true;
-        NumOfSheets = length(SheetNames);
-        % NumOfDataSheets = isfinite(table2array(Table_Sheet1(1:end-3,2)));
-        ListOfSheets = 4:(NumOfSheets-1);
-        clear NumOfSheets
-    catch
-        warndlg(sprintf('Sheet named "Results" not found!\nUser will have to manually select all sheets with data!'));
-        AutoLoadingON = false;
-        %ListOfSheets = NanoImport_SheetSelector(SheetNames);
-        PromptString = 'Select the sheets which contain the cantilever data';
-        ListOfSheets = listdlg('ListString',cellstr(SheetNames),'PromptString',PromptString,'SelectionMode','multiple','Name',code_title);
-    end
-
-    ListOfSheetNames = SheetNames(ListOfSheets); % This stores the names of the sheets which have been selected to be analysed.
-
-
-    %% Importing Data 02
     close all
-    clc
-    NumOfIndents = length(ListOfSheets);
+    
+    filename = fileNameList(CurrFileNum,2);
 
-    SheetNum = ListOfSheets(1);
-    %Table_Sheet = readmatrix(filename,'Sheet',SheetName,'FileType','spreadsheet','Range',SheetRange,'NumHeaderLines',2,'OutputType','double','ExpectedNumVariables',NoColsOfData);
-    %  Calibration_Sheet = readtable(filename,'Sheet',SheetNum,'FileType','spreadsheet');
-    Calibration_ColNamesA = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',0).VariableNames;
-    Calibration_ColNamesB = detectImportOptions(filename,'Sheet',SheetNum,'FileType','spreadsheet','NumHeaderLines',1).VariableNames;
-    Calibration_ColNames = join([Calibration_ColNamesA;Calibration_ColNamesB],1);
-    if debugON == false
-        clear Calibration_ColNamesA Calibration_ColNamesB
+    switch fileTypeIndex
+        case 1
+            [SheetNames,NumOfIndentsInFile,Calibration_ColNames,ListOfSheets] = NanoImport_General_Agilent(filename);
     end
-
+    
     PromptString = 'Select the indent displacement:';
     DispCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
     PromptString = 'Select the indent load:';
     LoadCol = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
     fprintf('Calibrated importing data so the indent depth is col-%d, and indent load is col-%d...\n',DispCol,LoadCol);
 
-    for i = 1:NumOfIndents
+    for i = 1:NumOfIndentsInFile
         ImportingFigure = figure('Name','ImpFig','WindowState','Maximized');
-        SheetNum = ListOfSheets(i);
-        CurrIndentName = SheetNames(SheetNum);
+        
+        switch fileTypeIndex
+            case 1
+                % Agilent Method
+                SheetNum = ListOfSheets(i);
+                CurrIndentName = SheetNames(SheetNum);
+                Current_Matrix = readmatrix(filename,'Sheet',SheetNum,'FileType','spreadsheet');
+            case 2
+                % Bruker Method
+                
+        end
+
         ylabel(Calibration_ColNames(LoadCol));
         xlabel(Calibration_ColNames(DispCol));
         title(sprintf('Current Sample: %s',CurrIndentName));
-        Current_Matrix = readmatrix(filename,'Sheet',SheetNum,'FileType','spreadsheet');
-        if debugON == true
-        	Current_sheet = readtable(filename,'Sheet',SheetNum,'FileType','spreadsheet');
-        end
-        
 
         if isnan(Current_Matrix) == true
             DLG = warndlg(sprintf('This sheet called "%s" is empty, and hence will be skipped...',CurrIndentName));
