@@ -21,7 +21,7 @@ function NanoExport2Spreadsheet(debugON)
     varNames = FileStuctures{1}.varNames;
     w = FileStuctures{1}.w;
     ErrorUsed = FileStuctures{1}.ErrorPlotMode;
-    method_name = FileStuctures{1}.method_name;
+    method_name = string(FileStuctures{1}.method_name);
     
     varTypes    = cell(1,size(ValueData,2));
     varTypes(:) = {'double'};

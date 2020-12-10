@@ -85,6 +85,7 @@ function DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,LOC_in
         ErrorData = FileStuctures{FileNum,1}.ErrorData;
         SampleNameList = FileStuctures{FileNum,1}.SampleNameList;
         NumberOfSamples = size(ValueData,3);
+        XDataCol = FileStuctures{FileNum,1}.XDataCol;
         % Cycles through each sample in the file.
         for i=1:NumberOfSamples
             % curr = current
@@ -92,7 +93,7 @@ function DataIDName = NanoMeaner(FileStuctures,DataTypeList,PlotDataTypes,LOC_in
             currValueData = ValueData(:,:,i);
             currErrorData = ErrorData(:,:,i);
             % The below function obtains the data required for the tables.
-            [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues] = processDataInAimedRange(AimedRange,currValueData,currErrorData,w,debugON);
+            [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues] = processDataInAimedRange(XDataCol,AimedRange,currValueData,currErrorData,w,debugON);
             % The below function uses the above function and fills in the
             % three tables in the row = CurrRowPosition.
             NanoMeanerTable = AddingDataIntoTable(NanoMeanerTable,CurrRowPosition,CurrentIDName,currSampleName,RangeUsedString,ValuesAndErrorsString);
@@ -178,13 +179,14 @@ function AimedRange = AimedRangeProducer(DataTypeToMean,title,RangeSelectionMode
     AimedRange = ExactX;
 end
 
-function [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues] = processDataInAimedRange(AimedRange,currValueData,~,w,NanoMeanerdDebugON)
+function [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues] = processDataInAimedRange(XDataCol,AimedRange,currValueData,~,w,NanoMeanerdDebugON)
 %%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTANT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Before w is currErrorData it is set to ~ as the code currently
     % ignores the uncertainty in the input data!
     
-    % XData is the bin midpoints.
-    XData = currValueData(:,1);
+    % XData is the bin midpoints if the data has been made by meaning
+    % indents.
+    XData = currValueData(:,XDataCol);
     ClosestIndices = nan(2,1);
     UsedRange = nan(2,1);
     for i = 1:2
@@ -201,7 +203,7 @@ function [RangeUsedString,ValuesAndErrorsString,RangeMeanValues,RangeErrorValues
     
     % Using the closest indicices we get the data (excluding the bin
     % midpoints) which will be processed.
-    DataToMean = currValueData(ClosestIndices(1):ClosestIndices(2),2:end);
+    DataToMean = currValueData(ClosestIndices(1):ClosestIndices(2),:);
     % The 1 in the two variables below means to mean and standard deviates
     % across the columns in DataToMean.
     BasicMeanOfValuesInRange = mean(DataToMean,1,'omitnan');

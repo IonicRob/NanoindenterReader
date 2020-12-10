@@ -3,14 +3,14 @@
 %
 % DataTypeList,PlotDataTypes,figHandles are needed by NanoMeaner
 
-function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,FileStuctures,PlotAesthetics,FormatAnswer)
+function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,FileStuctures,PlotAesthetics)
     %% Setting Up
     fprintf('NanoPlotter_main: Started!\n');
 
     % Converts from string array that is needed to save it into a
     % cell array for further processing. 1st array should be indent depth
     % in nm! Hence not included in this.
-    DataTypeList = cellstr(FileStuctures{1}.varNames(1:end));
+    DataTypeList = cellstr(FileStuctures{1}.varNames);
     PromptString = {'Select what data to plot against depth:','Multiple can be selected at once.'};
     [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
     if debugON == true
@@ -43,6 +43,26 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
         fprintf('Number of loaded files = %d\n',NumberOfFiles)
     end
     
+    ErrorsYNArray = false(NumberOfFiles,1);
+ 
+    for u = 1:NumberOfFiles
+        ErrorsYNArray(u) = ~all(isnan(FileStuctures{u,1}.ErrorData),'all');
+    end
+    ErrorsYN = all(ErrorsYNArray,'all');
+    
+    if ErrorsYN == true
+        % The below chooses how the data will be presented in the figures.
+        % This is how the data will be shown on the graph.
+        FormatAnswer = questdlg('How do you want to present the data?',dlg_title,'Line + Error Region','Line + Error Bars','Line',DefaultDlg.FormatAnswer);
+        if strcmp(FormatAnswer,'') == true
+            DLG = errordlg('Exit button was pressed! Code will terminate!');
+            waitfor(DLG);
+            return
+        end
+    else
+        FormatAnswer = 'Line';
+    end
+    
     %% Main Loop 
     for FileNum = 1:NumberOfFiles
         CurrentIDName = FileStuctures{FileNum,1}.DataIDName;
@@ -64,20 +84,21 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
                 disp('Current Value Data = ...')
                 disp(currValueData);
             end
-
+            
             if strcmp(FormatAnswer,'Line + Error Region') == true || strcmp(FormatAnswer,'Line') == true
-                Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth,XDataCol);
+                Color = LinePlotting(currValueData,PlotDataTypes,LegendName,linewidth,XDataCol);
             elseif strcmp(FormatAnswer,'Line + Error Bars') == true
-                ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize,XDataCol)
+                ErroBarPlotting(currValueData,currErrorData,PlotDataTypes,LegendName,linewidth,capsize,XDataCol);
             else
                 errordlg(sprintf('Plotting mode does not match with any known options!\n = "%s"',FormatAnswer));
                 return
             end
 
+            
             if strcmp(FormatAnswer,'Line + Error Region') == true
                 % This pre-processes the input data so that it can plot the error
                 % region using the output data (EFP).
-                ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha,XDataCol)
+                ErrorRegionPlotting(currValueData,currErrorData,PlotDataTypes,Color,facealpha,XDataCol);
             end
             
             clear LegendName currValueData currErrorData Color
@@ -85,8 +106,8 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
         
         clear CurrentIDName ValueData ErrorData NumberOfSamples SampleNameList Color
     end
-    figureFormatting(PlotDataTypes,figHandles,Y_Axis_Labels,X_Axis_Label,legendLocation)
-    
+    figureFormatting(PlotDataTypes,DataTypeList,X_Axis_Label,legendLocation);
+        
     figureClosing(debugON,DataTypeList,PlotDataTypes);
     
 
@@ -96,41 +117,29 @@ end
 
 %% Functions
 
-function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth,XDataCol)
-    NumberOfPlots = length(PlotDataTypes);
-    for j = 1:NumberOfPlots
-        currDataNum = PlotDataTypes(j); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
-        columnNum = currDataNum+1;
+function Color = LinePlotting(currValueData,PlotDataTypes,LegendName,linewidth,XDataCol)
+    for j = PlotDataTypes
+        columnNum = j; % e.g. = 3 if HCS selected
+        figure(columnNum)
         Data = plot(currValueData(:,XDataCol),currValueData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth);
         Color = Data.Color;
         hold on
-        if debugON == true
-            fprintf('LinePlotting\nj = %d\tcurrDataNum =  %d\nCurrent figure handle:...\n',j,currDataNum)
-        end
     end
 end
 
-function ErroBarPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,LegendName,linewidth,capsize,XDataCol)
-    NumberOfPlots = length(PlotDataTypes);
-    for i = 1:NumberOfPlots
-        currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
-        columnNum = currDataNum+1;
+function ErroBarPlotting(currValueData,currErrorData,PlotDataTypes,LegendName,linewidth,capsize,XDataCol)
+    for i = PlotDataTypes
+        columnNum = i; % e.g. = 3 if HCS selected
+        figure(columnNum)
         errorbar(currValueData(:,XDataCol),currValueData(:,columnNum),currErrorData(:,columnNum),'DisplayName',LegendName,'LineWidth',linewidth,'CapSize',capsize);
         hold on
     end
 end
 
-function ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,figHandles,Color,facealpha,XDataCol)
-    NumberOfPlots = length(PlotDataTypes);
-    for i = 1:NumberOfPlots
-        currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
-        figure(currDataNum)
-        columnNum = currDataNum+1;
+function ErrorRegionPlotting(currValueData,currErrorData,PlotDataTypes,Color,facealpha,XDataCol)
+    for i = PlotDataTypes
+        columnNum = i; % e.g. = 3 if HCS selected
+        figure(columnNum)
         XData = currValueData(:,XDataCol);
         YData = currValueData(:,columnNum);
         YErr = currErrorData(:,columnNum);
@@ -141,18 +150,17 @@ function ErrorRegionPlotting(debugON,currValueData,currErrorData,PlotDataTypes,f
     end
 end
 
-function figureFormatting(PlotDataTypes,figHandles,DataTypeList,X_Axis_Label,legendLocation)
+function figureFormatting(PlotDataTypes,DataTypeList,X_Axis_Label,legendLocation)
     NumberOfPlots = length(PlotDataTypes);
     for i = 1:NumberOfPlots
         currDataNum = PlotDataTypes(i); % e.g. = 3 if HCS selected
-%         currFigHandle = figHandles(currDataNum);
         figure(currDataNum)
         ylabel(DataTypeList(currDataNum));
         xlabel(X_Axis_Label);
-        YLIM = ylim();
-        XLIM = xlim();
-        ylim([0,NewLimit(YLIM(2))]);
-        xlim([0,NewLimit(XLIM(2))]);
+%         YLIM = ylim();
+%         XLIM = xlim();
+%         ylim([0,NewLimit(YLIM(2))]);
+%         xlim([0,NewLimit(XLIM(2))]);
         grid on;
         legend('location',legendLocation);
     end

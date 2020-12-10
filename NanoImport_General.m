@@ -153,13 +153,43 @@ for CurrFileNum=1:NoOfFiles
 
 %         wait(0.5);
         
-        ValueData = Current_Matrix;
-        ErrorData = nan(size(Current_Matrix));
+        XDataCol = DispCol;
+        varNames = string(Calibration_ColNames);
         w = 0;
         ErrorPlotMode = 'Standard deviation';
-        varNames = string(Calibration_ColNames);
-        XDataCol = DispCol;
         method_name = 'Agilent-QS';
+
+        % Removing Columns with NaN
+        NumColumns = size(Current_Matrix,2);
+        New_Current_Matrix = Current_Matrix;
+        for m = 1:NumColumns
+            AllNaN = sum(all(isnan(Current_Matrix(:,m))));
+            if AllNaN == true
+                New_Current_Matrix(:,m) = [];
+                varNames(m) = [];
+                if m < XDataCol
+                    XDataCol = XDataCol-1;
+                    fprintf('XDataCol = %d',XDataCol);
+                end
+            end
+%             A = isoutlier(New_Current_Matrix(:,m));
+        end
+        disp('Removed columns of just NaN...');
+        
+        [row, ~] = find(isnan(New_Current_Matrix));
+        RowsContainingNaN = unique(row);
+        New_Current_Matrix(RowsContainingNaN,:) = [];
+        disp('Removed rows containing a NaN...');
+       
+        [row, ~] = find(abs(New_Current_Matrix) > 10^10);
+        RowsOfTooBigMag = unique(row);
+        New_Current_Matrix(RowsOfTooBigMag,:) = [];
+        disp('Removed rows with magnitudes > 10^10...');
+
+        Current_Matrix = New_Current_Matrix;
+
+        ValueData = Current_Matrix;
+        ErrorData = nan(size(Current_Matrix));
         
         
         % Saving Section
