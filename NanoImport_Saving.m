@@ -1,7 +1,7 @@
 %% NanoImport_Saving
 
-function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save)
-    
+function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData)
+
     dlg_title = 'NanoImport_Saving';
 
     % This is the name the whole file will be known as in terms of ID.
@@ -32,9 +32,9 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
         % This occurs when the user says they want to save data.
         fprintf('Save destination = "%s"\n',cd_save);
         cd(cd_save); % Changed current directory to the save location.
-        quest = sprintf('Choose how to save the data for %s?:',FileIDName);
-        pbnts = {'Auto','Semi-auto','Manual'};
-        [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
+%         quest = sprintf('Choose how to save the data for %s?:',FileIDName);
+%         pbnts = {'Auto','Semi-auto','Manual'};
+%         [SavingData,~] = uigetpref('Settings','AutoSaving',dlg_title,quest,pbnts);
         switch SavingData
             case 'auto'
                 disp('AUTOMATICALLY Saving the processed nanoindentation data');

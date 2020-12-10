@@ -6,12 +6,9 @@ function [SheetNames,NumOfIndentsInFile,Calibration_ColNames,ListOfSheets] = Nan
 dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
 
-[SelfTF,STLength] = ifcalled;
-if SelfTF == true
-    debugON = true;
+[debugON,STLength] = ifcalled;
+if debugON == true
     disp(STLength)
-else
-    debugON = false;
 end
 
 %% Main Part

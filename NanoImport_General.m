@@ -4,18 +4,13 @@
 function NanoImport_General
 %% Starting Up
 
-uisetpref('clearall');
+% uisetpref('clearall');
+SavingData = 'auto';
 
 dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
 
-[SelfTF,~] = ifcalled;
-
-if SelfTF == true
-    debugON = true;
-else
-    debugON = false;
-end
+[debugON,~] = ifcalled;
 
 cd_init = cd; % Initial directory
 
@@ -168,7 +163,7 @@ for CurrFileNum=1:NoOfFiles
         
         
         % Saving Section
-        [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save); % dataToSave
+        [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData); % dataToSave
         close(ImportingFigure);
     end
 

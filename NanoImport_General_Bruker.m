@@ -12,13 +12,10 @@ function [NumOfIndentsInFile,Calibration_ColNames] = NanoImport_General_Bruker(f
 dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
 
-[SelfTF,STLength] = ifcalled;
+[debugON,STLength] = ifcalled;
 
-if SelfTF == true
-    debugON = true;
+if debugON == true
     disp(STLength);
-else
-    debugON = false;
 end
 
 currMatrix = readtable(filename,'VariableNamingRule','preserve');

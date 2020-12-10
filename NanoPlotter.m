@@ -1,15 +1,17 @@
 %% Nanoindentation Data Loader
 % Written by Robert J Scales
 
-function NanoPlotter(debugON,PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
+function NanoPlotter(PlotAesthetics,DefaultDlg,ChooseSaveType,DfltImgFmtType)
 %% Basic Set-up
 % The comments for what the below does can be found pretty much in
 % NanoImport!
 
 clc;
-dlg_title = 'NanoPlotter';
+dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
 cd_init = cd;
+
+[debugON,~] = ifcalled;
 
 if ChooseSaveType == true
     % This function sets the figure image saving file type.
@@ -26,15 +28,17 @@ end
 % wishes to plot on the same figure.
 [FileStuctures,~,cd_load] = LoadingFilesFunc(debugON,'on');
 
+
 % The below uses the function checkStructuresCompat to see if the data
 % analysis done on the files is the same. See function below for further
 % details.
 passTF = checkStructuresCompat(debugON,FileStuctures);
-if passTF == false
-    % This is done as otherwise the return in the function stops the
-    % function but not this function!
-    return
-end
+% if passTF == false
+%     % This is done as otherwise the return in the function stops the
+%     % function but not this function!
+%     return
+% end
+
 
 
 % The below chooses how the data will be presented in the figures.
@@ -144,57 +148,6 @@ function ImageFormatType = ImageSaveType
     ImageFormatType = imageTypeList{ImageFormatType};
 end
 
-
-% Following on from above, the if this check is not done then we are
-% mixing data with different error analysis.
-% The variable names is dependent on the method and machine, and this
-% check is done because currently the code is limited with capability.
-% May impliment an advanced plotter which the user has to select the
-% column for a specific data type to plot.
-function passTF = checkStructuresCompat(debugON,FileStuctures)
-    NumLoaded = length(FileStuctures);
-
-    if debugON == true
-        fprintf('FileStuctures has length of %d...\n',NumLoaded);
-    end
-    
-    w_check_array = nan(NumLoaded,1);
-    stdevORstderror_check = cell(NumLoaded,1);
-    
-    varNames_all_same = true;
-    
-    first_varNames = FileStuctures{1}.varNames;
-    
-    for i = 1:NumLoaded
-        current_struct = FileStuctures{i};
-        current_w = current_struct.w;
-        current_varNames = current_struct.varNames;
-        stdevORstderror_check{i} = current_struct.ErrorPlotMode;
-        w_check_array(i) = current_w;
-%         fprintf('%s has w = %d...\n',current_struct.DataIDName,current_w);
-        if strcmp(char(current_varNames),char(first_varNames)) == false
-            varNames_all_same = false;
-        end
-    end
-    
-    w_all_same = ( length(unique(w_check_array)) == 1 );
-    Std_all_same = ( length(unique(stdevORstderror_check)) == 1 );
-    
-    if (w_all_same == false) || (varNames_all_same == false) || (Std_all_same == false)
-        Message = cell(3,1);
-        Message{1} = sprintf('The files loaded have something not the same (i.e. "false"): \n');
-        Message{2} = sprintf(' - standard deviation weighting (w) = %s \n', logical2String(w_all_same));
-        Message{3} = sprintf(' - variable names (varNames) = %s \n', logical2String(varNames_all_same));
-        Message{4} = sprintf(' - same error type (stdev or stderror) = %s \n', logical2String(Std_all_same));
-        DLG = errordlg(Message);
-        waitfor(DLG);
-        passTF = false;
-        return
-    else
-        passTF = true;
-    end
-    
-end
 
 function Output = logical2String(input)
     if input == true

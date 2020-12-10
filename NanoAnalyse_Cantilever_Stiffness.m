@@ -1,7 +1,7 @@
 %% NanoAnalyse_Cantilever_Stiffness
 % By Robert J Scales
 
-function [FileStuctures] = NanoAnalyse_Cantilever_Stiffness(debugON,PlotAesthetics,FormatAnswer,DfltImgFmtType)
+function [FileStuctures] = NanoAnalyse_Cantilever_Stiffness(debugON,PlotAesthetics,DfltImgFmtType)
 %% Set-up and Loading
 code_title = 'NanoAnalyse_Cantilever_Stiffness';
 fprintf('%s: Started...\n\n',code_title);
@@ -19,7 +19,6 @@ if testTF == true
     waitfor(WARN);
     debugON = true;
     PlotAesthetics = struct('capsize',0,'linewidth',1,'facealpha',0.25);
-    FormatAnswer = 'Line';
     DfltImgFmtType = 'png'; % 'tiffn'
 end
 

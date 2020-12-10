@@ -18,11 +18,12 @@ FunctionToUse = ListOfFunctions{FunctionToUse};
 
 switch FunctionToUse
     case 'Cantilever Stiffness'
-        NanoAnalyse_Cantilever_Stiffness(debugON,PlotAesthetics,DfltImgFmtType)
+        FormatAnswer = 'Line';
+        NanoAnalyse_Cantilever_Stiffness(debugON,PlotAesthetics,FormatAnswer,DfltImgFmtType)
     case 'Mean Indents'
-        NanoAnalyse_MeanIndents
-    case 'Pentagonal Cantilever Stress-Strain'
-        NanoAnalyse_PentagonalCantileverStressStrain
+        
+    case 
+        
     otherwise
         errordlg('No action was chosen! Code will terminate...')
         return

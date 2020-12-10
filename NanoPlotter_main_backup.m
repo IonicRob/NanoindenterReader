@@ -10,14 +10,14 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
     % Converts from string array that is needed to save it into a
     % cell array for further processing. 1st array should be indent depth
     % in nm! Hence not included in this.
-    DataTypeList = cellstr(FileStuctures{1}.varNames(1:end));
-    PromptString = {'Select what data to plot against depth:','Multiple can be selected at once.'};
-    [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
+    DataTypeList = cellstr(FileStuctures{1}.varNames(2:end));
+%     DataTypeList = {'Load (mN)','Time (s)','Harmonic Contact Stiffness (N/m)','Hardness (GPa)','Youngs Modulus (GPa)'};
+    PlotDataTypes = ChooseDataToPlot(DataTypeList);
+    
     if debugON == true
         disp('PlotDataTypes = ...');
         disp(PlotDataTypes);
     end
-    clear PromptString
     
     for i = 1:length(DataTypeList)
         currDataType = DataTypeList{i};
@@ -95,6 +95,11 @@ function [DataTypeList,PlotDataTypes,figHandles] = NanoPlotter_main(debugON,File
 end
 
 %% Functions
+
+function PlotDataTypes = ChooseDataToPlot(DataTypeList)
+    PromptString = {'Select what data to plot against depth:','Multiple can be selected at once.'};
+    [PlotDataTypes,~] = listdlg('PromptString',PromptString,'SelectionMode','multiple','ListString',DataTypeList);
+end
 
 function Color = LinePlotting(debugON,currValueData,PlotDataTypes,figHandles,LegendName,linewidth,XDataCol)
     NumberOfPlots = length(PlotDataTypes);
