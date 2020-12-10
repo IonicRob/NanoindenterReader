@@ -16,7 +16,7 @@ function NanoPlotterFigureSaver(debugON,ImageFormatType,LoadingMode,cd_init,Data
         % If running in Create mode OR DataIDName = nan, then it will ask
         % for you to input DataIDName, otherwise it will do nothing to it.
         if LoadingMode == false || isempty(DataIDName) == true
-            DataIDName = string(inputdlg('Type the identifying name for this session (NO odd symbols!):',dlg_title,[1,50]));
+            DataIDName = string(inputdlg('Type the ID for this graph (No odd symbols):',dlg_title,[1,50]));
         else
             fprintf('Pre-existing DataIDName made, called "%s"\n',DataIDName);
         end

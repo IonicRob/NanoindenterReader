@@ -154,7 +154,7 @@ for CurrFileNum=1:NoOfFiles
         LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,YVariable));
         hold on
 
-        plotLabels(titleText,Calibration_ColNames(DispCol),Calibration_ColNames(YVariable));
+plotLabels(titleText,Calibration_ColNames(DispCol),Calibration_ColNames(YVariable));
 
 %         wait(0.5);
         

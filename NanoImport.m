@@ -51,7 +51,7 @@ function NanoImport(debugON,DefaultDlg,USS)
 
 
     %% Main Data Processing Section
-        MethodList = {'CSM Agilent','QS Agilent','QS Bruker','Other','Help'};
+        MethodList = {'CSM Agilent','QS Agilent','QS Bruker','General','Other','Help'};
         PromptString = {'Select the type method/system to import:','Only one type can be selected at a time.'};
         [ChosenMethod,~] = listdlg('PromptString',PromptString,'SelectionMode','single','ListString',MethodList);
         if isempty(ChosenMethod) == false
@@ -83,6 +83,8 @@ function NanoImport(debugON,DefaultDlg,USS)
                 NanoImport_QS_Agilent(debugON)
             case 'QS Bruker'
                 NanoImport_QS_Bruker(debugON,bins,w,ErrorPlotMode)
+            case 'General'
+                NanoImport_General
         end
 
 end

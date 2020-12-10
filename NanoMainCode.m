@@ -67,7 +67,8 @@ FunctionToUse = ListOfFunctions{FunctionToUse};
 
 switch FunctionToUse
     case 'Import'
-        NanoImport(debugON,DefaultDlg,USS)
+        NanoImport_General
+%         NanoImport(debugON,DefaultDlg,USS)
     case 'Plot'
         ChooseSaveType = false;
         DfltImgFmtType = 'png'; % 'tiffn'

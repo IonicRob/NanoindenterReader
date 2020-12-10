@@ -1,4 +1,4 @@
-%% NanoImport_General
+%% NanoImport_General_Agilent
 % By Robert J Scales
 
 function [SheetNames,NumOfIndentsInFile,Calibration_ColNames,ListOfSheets] = NanoImport_General_Agilent(filename)
@@ -7,7 +7,6 @@ dlg_title = mfilename;
 fprintf('%s: Started!\n\n',dlg_title);
 
 [SelfTF,STLength] = ifcalled;
-
 if SelfTF == true
     debugON = true;
     disp(STLength)
@@ -51,26 +50,4 @@ if debugON == false
 end
 
 fprintf('%s: Completed!\n\n',dlg_title);
-end
-
-
-
-
-%% InBuilt Functions
-
-function [SelfTF,STLength] = ifcalled
-    % dbstack() describes what functions are being called.
-    ST = dbstack();
-    STLength = length(ST);
-    if STLength > 2
-        % The below happens if this is being called from another function.
-        PopUp = helpdlg('Function is detected as NOT running by itself.');
-        waitfor(PopUp);
-        SelfTF =  false;
-    else
-        % The below happens if this function is being run by itself.
-        PopUp = helpdlg('Function is detected as running by itself.');
-        waitfor(PopUp);
-        SelfTF = true;
-    end
 end

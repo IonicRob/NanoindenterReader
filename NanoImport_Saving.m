@@ -1,11 +1,11 @@
 %% NanoImport_Saving
 
-function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,cd_load)
+function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save)
     
     dlg_title = 'NanoImport_Saving';
 
     % This is the name the whole file will be known as in terms of ID.
-    FileIDName = string(inputdlg('Type in the name of the meaned data (e.g. the material name):',dlg_title,[1,50]));
+    FileIDName = string(inputdlg('Type in ID of the data:',dlg_title,[1,50]));
     
     % This is the time the data was saved at, thus allows for tracking of files
     % with the same FileIDName.
@@ -24,11 +24,6 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
             end
         end
     end
-    
-    % This gives the user the option of where to save the data or not to
-    % save the data at all.
-    quest = sprintf('Where to save %s?:',FileIDName);
-    [SavingLocYN,cd_save] = NanoSaveFolderPref(quest,cd_init,cd_load);
 
     % This is an automatically generated unique name for this data.
     DataSaveName = sprintf('%s_%s_Data.mat',FileIDName,SaveTime);
