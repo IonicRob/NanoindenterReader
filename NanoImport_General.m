@@ -27,7 +27,7 @@ if isnan(NoOfFiles) == true
     return
 end
 
-%% Importing Data 01
+%% Importing Data
 
 % This gives the user the option of where to save the data or not to
 % save the data at all.
@@ -109,6 +109,8 @@ for CurrFileNum=1:NoOfFiles
             plot(Gradient,'-x');
         end
 
+        %% Post-Processing - Changing Origin Point
+        
         Gradient = gradient(Current_Matrix(:,DispCol));
         Recommended_StartPoint = find(0<Gradient & Gradient<0.1,1); % Finds the first point for which the displacement is first increasing by 0.1 units per row, this is to counteract if it goes reverse.
         %Recommended_StartPoint = find(Current_Matrix(:,LoadCol)>0.06,1); % Finds the point for which the load is first above 0.06 mN.
@@ -152,7 +154,7 @@ for CurrFileNum=1:NoOfFiles
         plotLabels(titleText,Calibration_ColNames(DispCol),Calibration_ColNames(YVariable));
 
 %         wait(0.5);
-        
+        %% Post-Processing - Removing Bad/Un-needed Data
         XDataCol = DispCol;
         varNames = string(Calibration_ColNames);
         w = 0;
@@ -208,8 +210,8 @@ end
 function plotLabels(titleLabel,xLabel,yLabel)
 
 title(titleLabel);
-ylabel(xLabel);
-xlabel(yLabel);
+xlabel(xLabel);
+ylabel(yLabel);
 
 end
 
