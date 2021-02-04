@@ -33,6 +33,16 @@ end
 % save the data at all.
 [SavingLocYN,cd_save] = NanoSaveFolderPref('Imported files save location?:',cd_init,cd_load);
 
+Question = 'Automatically import all indents in file(s)?';
+Question_title = 'Mass Importing Indents';
+MassImportYN = questdlg(Question,Question_title,'Yes','No','Yes');
+switch MassImportYN
+    case 'Yes'
+        MassImportYN = true;
+    case 'No'
+        MassImportYN = false;
+end
+
 for CurrFileNum=1:NoOfFiles
     close all
     
@@ -60,7 +70,8 @@ for CurrFileNum=1:NoOfFiles
         YVariable = listdlg('ListString',Calibration_ColNames,'PromptString',PromptString,'SelectionMode','single');
         fprintf('Calibrated importing data so the indent depth is col-%d, and y-variable is col-%d...\n',DispCol,YVariable);
     end
-
+    
+    % Want to add mass import
     for i = 1:NumOfIndentsInFile
         ImportingFigure = figure('Name','ImpFig','WindowState','Maximized');
         
@@ -94,10 +105,12 @@ for CurrFileNum=1:NoOfFiles
         
         plotLabels(titleText,Calibration_ColNames(DispCol),Calibration_ColNames(YVariable));
         
-        AnalyseIndentYN = questdlg('Do you want to analyse this indent?','Choosing Data','Yes','No','Yes');
-        if strcmp(AnalyseIndentYN,'No') == true
-            close(ImportingFigure);
-            continue
+        if MassImportYN == false
+            AnalyseIndentYN = questdlg('Do you want to analyse this indent?','Choosing Data','Yes','No','Yes');
+            if strcmp(AnalyseIndentYN,'No') == true
+                close(ImportingFigure);
+                continue
+            end
         end
 
 
@@ -118,21 +131,16 @@ for CurrFileNum=1:NoOfFiles
         StartPoint_Plot = plot(Current_Matrix(Recommended_StartPoint,DispCol),Current_Matrix(Recommended_StartPoint,YVariable),'rx','MarkerSize',20);
         % datatip(LoadDisp,'DataIndex',Recommended_StartPoint)
 
-        Question = 'Want to use the recommended origin point?';
-        Question_title = 'Clipping The Data';
-        UseAutoClipON = questdlg(Question,Question_title,'Yes','Manually Choose','Leave Alone','Yes');
+%         Question = 'Want to use the recommended origin point?';
+%         Question_title = 'Clipping The Data';
+%         UseAutoClipON = questdlg(Question,Question_title,'Yes','Manually Choose','Leave Alone','Leave Alone');
 
-    %     if strcmp(UseAutoClipON,'Manually Choose') == true
-    %         [x_point,~] = ginput(1);
-    %         [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
-    %         disp(Recommended_StartPoint);
-    %     end
+        UseAutoClipON = 'Leave Alone';
 
         switch UseAutoClipON
             case 'Manually Choose'
                 [x_point,~] = ginput(1);
                 [~,Recommended_StartPoint] = min(abs( x_point - Current_Matrix(:,DispCol) ));
-                %disp(Recommended_StartPoint);
                 Rec_StartPoint_XY = [Current_Matrix(Recommended_StartPoint,1),Current_Matrix(Recommended_StartPoint,2)];
             case 'Leave Alone'
                 Recommended_StartPoint = 1;
@@ -148,7 +156,7 @@ for CurrFileNum=1:NoOfFiles
         Current_Matrix(:,1) = Current_Matrix(:,1)-Rec_StartPoint_XY(1);
         Current_Matrix(:,2) = Current_Matrix(:,2)-Rec_StartPoint_XY(2);
 
-        LoadDisp = plot(Current_Matrix(:,DispCol),Current_Matrix(:,YVariable));
+        plot(Current_Matrix(:,DispCol),Current_Matrix(:,YVariable));
         hold on
 
         plotLabels(titleText,Calibration_ColNames(DispCol),Calibration_ColNames(YVariable));
@@ -193,9 +201,26 @@ for CurrFileNum=1:NoOfFiles
         ValueData = Current_Matrix;
         ErrorData = nan(size(Current_Matrix));
         
-        
+        fprintf('MassImportYN = %s\n',string(MassImportYN))
+        disp(MassImportYN)
         % Saving Section
-        [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData); % dataToSave
+        if MassImportYN == true
+            disp('Mass import saving method selected');
+            switch fileTypeIndex
+                case 1
+                    % Agilent Method
+                    FileIDName = f_i_agilentfilenamegen(ListOfSheets,i,SheetNames,files(CurrFileNum));
+                case 2
+                    % Bruker Method
+                    disp('Bruker for auto save name');
+                    CurrIndentName = files(CurrFileNum);
+                    FileIDName = sprintf('Bru_RawData__%s',CurrIndentName);
+            end
+            NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData,FileIDName); % dataToSave
+        elseif MassImportYN == false
+            disp('Not mass import saving method selected');
+            NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData); % dataToSave
+        end
         close(ImportingFigure);
     end
 
@@ -208,11 +233,16 @@ end
 %% InBuilt Functions
 
 function plotLabels(titleLabel,xLabel,yLabel)
+    title(titleLabel);
+    xlabel(xLabel);
+    ylabel(yLabel);
+end
 
-title(titleLabel);
-xlabel(xLabel);
-ylabel(yLabel);
-
+function FileIDName = f_i_agilentfilenamegen(ListOfSheets,i,SheetNames,filename)
+    disp('Agilent for auto save name');
+    SheetNum = ListOfSheets(i);
+    CurrIndentName = SheetNames(SheetNum);
+    FileIDName = sprintf('Agi_RawData__%s_%s',filename,CurrIndentName);
 end
 
 %% Development Plan

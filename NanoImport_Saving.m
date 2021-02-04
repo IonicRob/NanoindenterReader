@@ -1,11 +1,17 @@
 %% NanoImport_Saving
 
-function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData)
+function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlotMode,varNames,XDataCol,method_name,cd_init,SavingLocYN,cd_save,SavingData,FileIDName)
 
     dlg_title = 'NanoImport_Saving';
 
     % This is the name the whole file will be known as in terms of ID.
-    FileIDName = string(inputdlg('Type in ID of the data:',dlg_title,[1,50]));
+    if ~exist('FileIDName','var')
+        disp('FileIDName does not exist')
+        FileIDName = string(inputdlg('Type in ID of the data:',dlg_title,[1,50]));
+    else
+        disp('FileIDName does exist')
+    end
+%     FileIDName = string(inputdlg('Type in ID of the data:',dlg_title,[1,50]));
     
     % This is the time the data was saved at, thus allows for tracking of files
     % with the same FileIDName.
@@ -26,7 +32,7 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
     end
 
     % This is an automatically generated unique name for this data.
-    DataSaveName = sprintf('%s_%s_Data.mat',FileIDName,SaveTime);
+    DataSaveName = sprintf('%s__%s.mat',FileIDName,SaveTime);
     
     if strcmp(SavingLocYN,'do not save data') == false
         % This occurs when the user says they want to save data.
@@ -54,6 +60,5 @@ function [dataToSave] = NanoImport_Saving(debugON,ValueData,ErrorData,w,ErrorPlo
         % This occurs when the user says they DO NOT want to save data.
         disp('You have chosen not to save the data, hence YOU have to manually save the data!');
     end
-
-
+    clear FileIDName
 end
