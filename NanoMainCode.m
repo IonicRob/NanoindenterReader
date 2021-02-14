@@ -36,6 +36,8 @@ clearvars('-except','SettingsDone','ImageFormatType');
 % preference diaglogue boxes.
 %   uisetpref('clearall');
 
+old_path = addpath('./Analyse/','./Import/','./Plotter/');
+
 %% NanoMainCode Settings
 
 % Setting this to true allows debugging messages to pop up within the
