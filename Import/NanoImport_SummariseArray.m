@@ -14,12 +14,12 @@ set(0,'defaultLineMarkerSize',12); % This sets the marker size for all text in a
 Depth_Min = 300;
 Depth_Max = 500;
 
-NumXIndents = 60;
+NumXIndents = 30;
 
 XIndents_Space = 10;
 XIndents_Units = 'um';
 
-YIndents_Space = -100;
+YIndents_Space = +100;
 YIndents_Units = 'um';
 
 %% Starting Up
@@ -150,14 +150,14 @@ for CurrFileNum=1:NoOfFiles
 
     ILP = figure('Name','Individual Line Plot');
     ICP = figure('Name','Individual Colour Plot');
-    
+        
     for j=1:NumYIndents
         y_pos = (j-1)*YIndents_Space;
         y_pos_array = ones(NumXIndents,1)*y_pos;
         DisplayName = sprintf('@ y = %d %s',y_pos,YIndents_Units);
-        Range = (1+((j-1)*60)):1:(j*60);
+        Range = (1+((j-1)*NumXIndents)):1:(j*NumXIndents);
         if max(Range) > size(ValueData,1)
-            Range = (1+((j-1)*60)):1:size(ValueData,1);
+            Range = (1+((j-1)*NumXIndents)):1:size(ValueData,1);
         end
         y_data = ValueData(Range,YDataCol);
         y_data_smoothed = ValueData_smoothed(Range,YDataCol);
@@ -215,10 +215,10 @@ for CurrFileNum=1:NoOfFiles
 
     % Color Plot
     figure('Name','Color Line');
-    ColorLinePlot(x_data,ones(60,1)*0.2,SummarisedArray_Mean(:,YDataCol));
+    ColorLinePlot(x_data,ones(NumXIndents,1)*0.2,SummarisedArray_Mean(:,YDataCol));
     
 %     figure('Name','Color Line Smoothed');
-%     ColorLinePlot(x_data,ones(60,1)*0.8,SummarisedArray_Mean_Smoothed(:,YDataCol));
+%     ColorLinePlot(x_data,ones(NumXIndents,1)*0.8,SummarisedArray_Mean_Smoothed(:,YDataCol));
     
     ylim([0,1]);
     
